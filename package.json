@@ -12,7 +12,7 @@
 	"dependencies":
 	{
         "crypto-js": "3.1.9-1",
-        "nem-sdk": "git://github.com/evias/NEM-sdk.git#dev-fee_structure"
+        "nem-sdk": "git://github.com/evias/NEM-sdk.git"
 	}
 }
 
