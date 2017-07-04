@@ -34,8 +34,18 @@
         };
     };
 
+    var nemEpoch = Date.UTC(2015, 2, 29, 0, 6, 25, 0);
     var globalCnt = 0;
     var hasTrxs = {};
+    var byDate = [];
+
+    var nemTrxDateCompare_ = function(a, b) {
+        if (a.transaction.timeStamp < b.transaction.timeStamp) return -1;
+        if (a.transaction.timeStamp > b.transaction.timeStamp) return 1;
+
+        return 0;
+    };
+
     var readTrxs_ = function(addr, host, lastId, doneCallback, last25 = false) {
         var node = sdk.model.objects.create("endpoint")(host, 7890);
         sdk.com.requests.account.transactions.all(node, addr, null, lastId)
@@ -55,11 +65,14 @@
                     }
 
                     hasTrxs[lastId] = res.data[i];
+                    array_push(byDate, res.data[i]);
+
                     globalCnt++;
                 }
 
                 if (isDone || cntTrx < 25) {
-                    return doneCallback(hasTrxs);
+                    byDate.sort(nemTrxDateCompare_).reverse();
+                    return doneCallback(addr, byDate);
                 }
 
                 readTrxs_(addr, host, lastId, doneCallback);
@@ -69,12 +82,12 @@
             });
     };
 
-    var printTrxs_ = function(transactions) {
+    var printTrxs_ = function(address, transactions) {
         console.log("Recent Transactions: ");
         console.log("----------------------------------");
 
-        for (var txHash in transactions) {
-            var metaDataPair = transactions[txHash];
+        for (var i = 0; i < transactions.length; i++) {
+            var metaDataPair = transactions[i];
 
             var meta = metaDataPair.meta;
             var content = metaDataPair.transaction;
@@ -86,10 +99,17 @@
             if (meta.innerHash.data && meta.innerHash.data.length)
                 trxHash = meta.innerHash.data;
 
+            var nemTime = content.timeStamp;
+            var trxDate = new Date(nemEpoch + (nemTime * 1000));
+            var fmtDate = trxDate.toISOString().replace(/T/, ' ').replace(/\..+/, '');
+            var recipient = content.recipient;
             var xemAmount = (realContent.amount / Math.pow(10, 6)).toFixed(6);
             //XXX add mosaics listing
 
-            console.log("- " + "ID: " + trxId + ", Amount: " + xemAmount + " XEM" + ", Hash: " + trxHash);
+            if (recipient != address)
+                xemAmount = "-" + xemAmount;
+
+            console.log("- " + "ID: " + trxId + ", Amount: " + xemAmount + " XEM" + ", Hash: " + trxHash + ", Recipient: " + recipient + ", Time: " + trxDate);
         }
         console.log("----------------------------------");
         process.exit();
