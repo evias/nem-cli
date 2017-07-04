@@ -12,7 +12,23 @@ cd nem-utils
 npm install
 ```
 
-You are all set, you can now use the singular Scripts in the Package.
+You are all set, you can now use the nem-utils Package.
+
+## Usage
+
+To start the utility, type the following from your Terminal:
+
+```bash
+npm start
+```
+
+or 
+
+```bash
+node index.js
+```
+
+NE{m}njoy! :)
 
 ## Pot de vin
 
