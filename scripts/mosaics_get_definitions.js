@@ -56,7 +56,7 @@
             return callback(mosaicDefs);
         }, function(err) {
             console.error(err);
-            endJob_();
+            return endJob_();
         });
     };
 
@@ -70,7 +70,7 @@
             //console.log(JSON.stringify(currentDef));
         }
 
-        endJob_();
+        return endJob_();
     };
 
     var endJob_ = function() {

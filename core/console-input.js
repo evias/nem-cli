@@ -20,7 +20,9 @@
     var ConsoleInput = function(opts) {
         this.options_ = opts;
 
-        this.ask = function(question, format, callback) {
+        this.ask = function(question, format, callback, allowEmpty) {
+            if (!allowEmpty) allowEmpty = false;
+
             var self = this;
             var stdin = process.stdin,
                 stdout = process.stdout;
@@ -31,7 +33,7 @@
             stdin.once('data', function(data) {
                 data = data.toString().trim();
 
-                if (format && format.test(data)) {
+                if ((format && format.test(data)) || (allowEmpty && !data.length)) {
                     callback(data);
                 } else if (format) {
                     stdout.write("It should match: " + format + "\n");
