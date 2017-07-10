@@ -88,6 +88,9 @@
                     var trxMicroXEM = getTrxRawAmount_(res.data[i], 'nem:xem');
                     //console.log("[DEBUG] Micro XEM Amount found: " + trxMicroXEM + " with transaction hash: " + lastHash);
 
+                    if (!trxMicroXEM)
+                        console.log("[DEBUG] 0 XEM Transaction: " + JSON.stringify(res.data[i]));
+
                     hasTrxs[lastId] = true;
                     totalAmt = totalAmt + trxMicroXEM;
                     globalCnt++;
