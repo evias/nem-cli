@@ -24,11 +24,12 @@
             console.log("");
             ConsoleInput.ask("Your XEM Address", /[A-Z\-0-9]+/, function(address) {
                 var nodeChar = address.substr(0, 1);
-                var nodeHost = "http://bob.nem.ninja";
+                var nodeHost = "http://bigalice2.nem.ninja";
                 if (nodeChar === 'N') {
-                    nodeHost = "http://alice7.nem.ninja";
+                    nodeHost = "http://hugealice.nem.ninja";
                 }
 
+                address = address.replace(/-/g, '');
                 readTrxs_(address, nodeHost, null, printTrxs_, true);
             });
         };
@@ -65,7 +66,7 @@
                     }
 
                     hasTrxs[lastId] = res.data[i];
-                    array_push(byDate, res.data[i]);
+                    byDate.push(res.data[i]);
 
                     globalCnt++;
                 }

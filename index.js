@@ -26,8 +26,9 @@ var run = function() {
 
     console.log("  [1] - Read Account Transaction Count");
     console.log("  [2] - Read Recent Account Transactions");
+    console.log("  [3] - Read Mosaic Definitions for Namespace");
 
-    ConsoleInput.ask("Please select a Module", /[12]/, function(input) {
+    ConsoleInput.ask("Please select a Module", /[1-3]/, function(input) {
 
         var Command = null;
         var container = null;
@@ -35,8 +36,9 @@ var run = function() {
             Command = require("./scripts/account_trx_count").Command;
         } else if (input == '2') {
             Command = require("./scripts/account_trx_recent").Command;
+        } else if (input == '3') {
+            Command = require("./scripts/mosaics_get_definitions").Command;
         }
-
         container = new Command(ConsoleInput);
         return container.run();
     });

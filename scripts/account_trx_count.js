@@ -24,11 +24,12 @@
             console.log("");
             ConsoleInput.ask("Your XEM Address", /[A-Z\-0-9]+/, function(address) {
                 var nodeChar = address.substr(0, 1);
-                var nodeHost = "http://bob.nem.ninja";
+                var nodeHost = "http://bigalice2.nem.ninja";
                 if (nodeChar === 'N') {
-                    nodeHost = "http://alice7.nem.ninja";
+                    nodeHost = "http://hugealice.nem.ninja";
                 }
 
+                address = address.replace(/-/g, '');
                 readTrxs_(address, nodeHost, null, printCount_);
             });
         };
@@ -37,6 +38,7 @@
     var globalCnt = 0;
     var hasTrxs = {};
     var readTrxs_ = function(addr, host, lastId, doneCallback) {
+        //console.log("[DEBUG] Issuing NIS request with lastId : " + lastId + "..");
         var node = sdk.model.objects.create("endpoint")(host, 7890);
         sdk.com.requests.account.transactions.all(node, addr, null, lastId)
             .then(function(res) {
@@ -47,9 +49,13 @@
 
                 var isDone = false;
                 var cntTrx = res.data.length;
+
+                //console.log("[DEBUG] Read " + cntTrx + " transactions chunk..");
+
                 for (var i = 0; i < res.data.length; i++) {
                     lastId = res.data[i].meta.id;
                     if (hasTrxs.hasOwnProperty(lastId)) {
+                        //console.log("[DEBUG] Found already Read: " + lastId + ".. Done.");
                         isDone = true;
                         break;
                     }
