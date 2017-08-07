@@ -18,6 +18,7 @@
 (function() {
 
     var sdk = require("nem-sdk").default;
+    var network = null;
 
     var Command = function(ConsoleInput) {
         this.run = function() {
@@ -25,8 +26,13 @@
             ConsoleInput.ask("Your XEM Address", /[A-Z\-0-9]+/, function(address) {
                 var nodeChar = address.substr(0, 1);
                 var nodeHost = "http://bigalice2.nem.ninja";
+                network = sdk.model.network.data.testnet;
                 if (nodeChar === 'N') {
                     nodeHost = "http://hugealice.nem.ninja";
+                    network = sdk.model.network.data.mainnet;
+                } else if (nodeChar === 'M') {
+                    nodeHost = "http://127.0.0.1"; //XXX insert mijin node
+                    network = sdk.model.network.data.mijin;
                 }
 
                 address = address.replace(/-/g, '');
@@ -94,20 +100,22 @@
             var content = metaDataPair.transaction;
             var isMultiSig = content.type === sdk.model.transactionTypes.multisigTransaction;
             var realContent = isMultiSig ? content.otherTrans : content;
+            var isIncome = realContent.recipient == address;
+            var totalFee = isMultiSig ? content.fee + realContent.fee : realContent.fee;
 
             var trxId = meta.id;
             var trxHash = meta.hash.data;
             if (meta.innerHash.data && meta.innerHash.data.length)
                 trxHash = meta.innerHash.data;
 
-            var nemTime = content.timeStamp;
+            var nemTime = realContent.timeStamp;
             var trxDate = new Date(nemEpoch + (nemTime * 1000));
             var fmtDate = trxDate.toISOString().replace(/T/, ' ').replace(/\..+/, '');
-            var recipient = content.recipient;
-            var xemAmount = (realContent.amount / Math.pow(10, 6)).toFixed(6);
+            var recipient = realContent.recipient;
+            var xemAmount = isIncome ? (realContent.amount / Math.pow(10, 6)).toFixed(6) : (totalFee / Math.pow(10, 6)).toFixed(6);
             //XXX add mosaics listing
 
-            if (recipient != address)
+            if (!isIncome)
                 xemAmount = "-" + xemAmount;
 
             console.log("- " + "ID: " + trxId + ", Amount: " + xemAmount + " XEM" + ", Hash: " + trxHash + ", Recipient: " + recipient + ", Time: " + trxDate);
