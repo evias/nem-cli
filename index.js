@@ -27,9 +27,10 @@ var run = function() {
     console.log("  [1] - Read Account Transaction Count");
     console.log("  [2] - Read Recent Account Transactions");
     console.log("  [3] - Read Mosaic Definitions for Namespace");
-    console.log("  [4] - Read Account Balances");
+    console.log("  [4] - View Account Balances");
+    console.log("  [5] - Public Key to Address");
 
-    ConsoleInput.ask("Please select a Module", /[1-4]/, function(input) {
+    ConsoleInput.ask("Please select a Module", /[1-5]/, function(input) {
 
         var Command = null;
         var container = null;
@@ -41,6 +42,8 @@ var run = function() {
             Command = require("./scripts/mosaics_get_definitions").Command;
         } else if (input == '4') {
             Command = require("./scripts/account_balances").Command;
+        } else if (input == '5') {
+            Command = require("./scripts/pubkey_to_address").Command;
         }
         container = new Command(ConsoleInput);
         return container.run();
