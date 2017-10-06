@@ -29,8 +29,9 @@ var run = function() {
     console.log("  [3] - Read Mosaic Definitions for Namespace");
     console.log("  [4] - View Account Balances");
     console.log("  [5] - Public Key to Address");
+    console.log("  [6] - NEM timestamp to Date");
 
-    ConsoleInput.ask("Please select a Module", /[1-5]/, function(input) {
+    ConsoleInput.ask("Please select a Module", /[1-6]/, function(input) {
 
         var Command = null;
         var container = null;
@@ -44,7 +45,10 @@ var run = function() {
             Command = require("./scripts/account_balances").Command;
         } else if (input == '5') {
             Command = require("./scripts/pubkey_to_address").Command;
+        } else if (input == '6') {
+            Command = require("./scripts/nem_time_to_date").Command;
         }
+
         container = new Command(ConsoleInput);
         return container.run();
     });
