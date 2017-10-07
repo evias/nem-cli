@@ -1,21 +1,29 @@
 {
-	"name": "nem-utils",
-	"version": "0.1.0",
-	"author": "Grégory Saive <greg@evias.be>",
-	"description": "nem-utils is a collection of NodeJS scripts useful when working with the NEM Blockchain from the Terminal",
-	"keywords": "nem, blockchain, nis, api, accounts, wallets, transactions",
-	"repository": {
-	    "type": "git",
-		"url": "https://github.com/evias/nem-utils.git"
-	},
-	"license": "MIT",
-	"dependencies":
-	{
+    "name": "nem-cli",
+    "version": "0.2.0",
+    "author": "Grégory Saive <greg@evias.be>",
+    "description": "NEM-cli is a collection of command line tools for the NEM Blockchain features using the Terminal",
+    "keywords": [
+        "nem",
+        "blockchain",
+        "nis",
+        "api",
+        "accounts",
+        "wallets",
+        "transactions"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/evias/nem-utils.git"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "commander": "2.11.0",
         "crypto-js": "3.1.9-1",
-        "nem-sdk": "git://github.com/evias/NEM-sdk.git"
-	},
+        "nem-sdk": "git://github.com/evias/NEM-sdk.git",
+        "request": "2.81.0"
+    },
     "scripts": {
-        "start": "node index.js"
+        "start": "node nem-cli.js"
     }
 }
-

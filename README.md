@@ -1,31 +1,44 @@
-# evias/nem-utils
+# evias/nem-cli
 
-nem-utils is a collection of NodeJS scripts useful when working with the NEM Blockchain from the Terminal
+nem-cli is a collection of command line tools useful when working with the NEM Blockchain using the Terminal.
+
+This package aims to provide an easy to use Command Line Tools Suite for the NEM Blockchain. 
+
+The NEM Blockchain provides features including: cryptocurrency wallets and transactions, a custom cryptocurrency tokens platform, namespaces management on the blockchain, multi signature accounts out-of-the box and also voting features.
+
+The command line tools suite is built such that each script/command can be run in a single process using UNIX terminals. (A wrapper for MS Windows will be written soonish)
+
+Feel free to contribute wherever you think you can help! NEMazing ideas much appreciated!
 
 ## Download & Installation
 
 Run the following from the terminal:
 
 ```bash
-git clone git@github.com:evias/nem-utils.git
-cd nem-utils
+git clone git@github.com:evias/nem-cli.git
+cd nem-cli
 npm install
 ```
 
-You are all set, you can now use the nem-utils Package.
+You are now all set and you can use the nem-cli Package.
 
 ## Usage
 
-To start the utility, type the following from your Terminal:
+There is multiple ways to interact with this command line tools suite. You can use `npm` to start your instance or you can use the package's `nem-cli.js` executable file (as this will give you more comfort with command line arguments)
+
+Here is a write-up of some examples for running the `nem-cli` command line tools suite:
 
 ```bash
-npm start
+$ ./nem-cli list
+$ ./nem-cli --help
+$ ./nem-cli -v
 ```
 
 or 
 
 ```bash
-node index.js
+$ npm start
+$ node nem-cli.js --help
 ```
 
 NE{m}njoy! :)
