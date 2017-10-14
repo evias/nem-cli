@@ -20,6 +20,18 @@
     var sdk = require("nem-sdk").default;
 
     var Command = function(ConsoleInput) {
+        this.signature = "time-format";
+        this.description = "Format a NEM Time into a human readable date string.";
+
+        this.options = [{
+            "signature": "-h, --help",
+            "description": "Print help message about the `nem-cli.js time-format` command."
+        }, {
+            "signature": "-t, --time",
+            "description": "Set the NEM Time that will be formatted",
+            "format": parseInt
+        }];
+
         this.run = function() {
             console.log("");
             ConsoleInput.ask("Enter NEM Timestamp", /[0-9]+/, function(nemTime) {
