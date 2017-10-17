@@ -15,31 +15,40 @@ Feel free to contribute wherever you think you can help! NEMazing ideas much app
 Run the following from the terminal:
 
 ```bash
-git clone git@github.com:evias/nem-cli.git
+git clone git@github.com:evias/nem-cli.git nem-cli/
 cd nem-cli
 npm install
 ```
 
-You are now all set and you can use the nem-cli Package.
+You are now all set and you can use the nem-cli Package as described in the Usage section.
 
 ## Usage
 
-There is multiple ways to interact with this command line tools suite. You can use `npm` to start your instance or you can use the package's `nem-cli.js` executable file (as this will give you more comfort with command line arguments)
+There is multiple ways to interact with this command line tools suite. You can use `npm` to start your instance the CLI and you can specify options, command and arguments to your command line call.
 
 Here is a write-up of some examples for running the `nem-cli` command line tools suite:
 
 ```bash
 $ ./nem-cli list
+$ ./nem-cli api [arguments]
 $ ./nem-cli --help
-$ ./nem-cli -v
 ```
 
 or 
 
 ```bash
-$ npm start
-$ node nem-cli.js --help
+$ npm start list
+$ npm start api  [arguments]
 ```
+
+.. or
+
+```bash
+$ ./babel-node nem-cli list
+$ ./babel-node nem-cli api [arguments]
+$ ./babel-node nem-cli --help
+```
+
 
 NE{m}njoy! :)
 

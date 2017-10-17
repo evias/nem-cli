@@ -17,9 +17,7 @@
 "use strict";
 
 class ConsoleInput {
-    constructor(opts) {
-        this.options_ = opts;
-    }
+    constructor() {}
 
     ask(question, format, callback, allowEmpty) {
         if (!allowEmpty) allowEmpty = false;
@@ -44,3 +42,4 @@ class ConsoleInput {
 }
 
 exports.ConsoleInput = ConsoleInput;
+

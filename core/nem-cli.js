@@ -24,7 +24,7 @@ var cli = require("commander"),
     fs = require("fs");
 
 // get package information
-var _package = JSON.parse(fs.readFileSync("package.json"));
+var _package = JSON.parse(fs.readFileSync(__dirname + "/../package.json"));
 
 // read available sub commands (prepare)
 var _scripts = fs.readdirSync(__dirname + "/../scripts");
@@ -48,8 +48,8 @@ var getScript = function(input) {
     if (!_commands.hasOwnProperty(input))
         return false;
 
-    var cls = require(__dirname + "/scripts/" + input + ".js").Command;
-    var ioc = new cls(new ConsoleInput());
+    var cls = require(__dirname + "/../scripts/" + input + ".js").Command;
+    var ioc = new cls();
     return ioc;
 };
 
