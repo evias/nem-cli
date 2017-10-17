@@ -14,34 +14,33 @@
  * @copyright  (c) 2017, Grégory Saive <greg@evias.be>
  * @link       https://github.com/evias/nem-utils
  */
+"use strict";
 
-(function() {
-
-    var ConsoleInput = function(opts) {
+class ConsoleInput {
+    constructor(opts) {
         this.options_ = opts;
+    }
 
-        this.ask = function(question, format, callback, allowEmpty) {
-            if (!allowEmpty) allowEmpty = false;
+    ask(question, format, callback, allowEmpty) {
+        if (!allowEmpty) allowEmpty = false;
 
-            var self = this;
-            var stdin = process.stdin,
-                stdout = process.stdout;
+        var stdin = process.stdin,
+            stdout = process.stdout;
 
-            stdin.resume();
-            stdout.write(question + ": ");
+        stdout.write(question + ": ");
+        stdin.once('data', function(data) {
+            data = data.toString().trim();
 
-            stdin.once('data', function(data) {
-                data = data.toString().trim();
+            if ((format && format.test(data)) || (allowEmpty && !data.length)) {
+                // Input Valid
+                callback(data);
+            }
+            else if (format) {
+                stdout.write("It should match: " + format + "\n");
+                self.ask(question, format, callback);
+            }
+        });
+    }
+}
 
-                if ((format && format.test(data)) || (allowEmpty && !data.length)) {
-                    callback(data);
-                } else if (format) {
-                    stdout.write("It should match: " + format + "\n");
-                    self.ask(question, format, callback);
-                }
-            });
-        };
-    };
-
-    module.exports.ConsoleInput = ConsoleInput;
-}());
+exports.ConsoleInput = ConsoleInput;

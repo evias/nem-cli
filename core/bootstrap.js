@@ -17,9 +17,10 @@
  * @link       https://github.com/evias/nem-utils
  */
 
-var InputCore = require("./core/console-input.js").ConsoleInput,
-    ConsoleInput = new InputCore(),
-    cli = require("commander"),
+import ConsoleInput from "./console-input";
+//import NEMConnection from "./connection";
+
+var cli = require("commander"),
     fs = require("fs");
 
 // get package information
@@ -37,18 +38,18 @@ _scripts.forEach(function(filename) {
 });
 
 /**
- * The getScript function will require() the said script
- * and make the Command class inside it available.
- * 
- * @param {String} input 
- * @return {Command}
- */
+* The getScript function will require() the said script
+* and make the Command class inside it available.
+* 
+* @param {String} input 
+* @return {Command}
+*/
 var getScript = function(input) {
     if (!_commands.hasOwnProperty(input))
         return false;
 
     var cls = require(__dirname + "/scripts/" + input + ".js").Command;
-    var ioc = new cls(ConsoleInput);
+    var ioc = new cls(new ConsoleInput());
     return ioc;
 };
 
@@ -61,38 +62,39 @@ cli.version(_package.version)
 
 // define basic `./nem-cli list` command
 cli.command("list")
-    .description("List all available commands")
-    .action(function(env, opts) {
-        console.log("------------------------------------------------------------------------");
-        console.log("--                               NEM CLI                              --");
-        console.log("------------------------------------------------------------------------");
+.description("List all available commands")
+.action(function(env, opts) {
+    console.log("------------------------------------------------------------------------");
+    console.log("--                               NEM CLI                              --");
+    console.log("------------------------------------------------------------------------");
 
-        cli.outputHelp();
+    cli.outputHelp();
 
-        console.log("");
-        console.log("");
-        console.log("  Credits To:");
-        console.log("");
-        console.log("    Author: " + _package.author);
+    console.log("");
+    console.log("");
+    console.log("  Credits To:");
+    console.log("");
+    console.log("    Author: " + _package.author);
 
-        if (_package.contributors && _package.contributors.length) {
-            _package.contributors.forEach(function(contributor) {
-                var contrib = contributor.name + (contributor.email ? "<" + contributor.email + ">" : "");
-                console.log("Contributor: " + contrib);
-            });
-        }
-        console.log("");
-    });
+    if (_package.contributors && _package.contributors.length) {
+        _package.contributors.forEach(function(contributor) {
+            var contrib = contributor.name + (contributor.email ? "<" + contributor.email + ">" : "");
+            console.log("Contributor: " + contrib);
+        });
+    }
+    console.log("");
+});
 
 // Serve the NEM cli suite through a HTTP server
 cli.command("serve")
-    .description("Make the NEM CLI command line tools suite available through its' HTTP API.")
-    .action(function(env, opts) {
-        //XXX
-    });
+.description("Make the NEM CLI command line tools suite available through its' HTTP API.")
+.action(function(env, opts) {
+    //XXX
+});
 
 // defines commander commands for the available commands (scripts/*.js)
-Object.getOwnPropertyNames(_commands).forEach(function(command) {
+Object.getOwnPropertyNames(_commands)
+  .forEach(function(command) {
 
     var cmd = getScript(command);
     var sub = cli.command(cmd.signature)
