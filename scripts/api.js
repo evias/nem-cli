@@ -16,11 +16,13 @@
  */
 "use strict";
 
-var ConsoleInput = require("../core/console-input").ConsoleInput;
+var BaseCommand = require("../core/command").BaseCommand;
 
-class Command {
+class Command extends BaseCommand {
 
     constructor() {
+        super();
+
         this.signature = "api";
         this.description = "Execute a NIS API request on a NEM node.";
 
@@ -34,8 +36,6 @@ class Command {
             "signature": "-j, --json <body>",
             "description": "Add a JSON body to your NIS API request."
         }];
-
-        this.terminal = new ConsoleInput();
     }
 
     help() {
@@ -48,17 +48,14 @@ class Command {
         console.log("    $ ./nem-cli api /block/at/public --post --json \"\{height: 1149971\}\"");
     }
 
-    run(env, options) {
+    run(env) {
 
         var self = this;
 
-        console.log(env);
-        console.log("----");
-        console.log(options.json);
-        console.log(env.network);
-        console.log(options.post);
-        process.exit();
-
+        if (env.help) {
+            self.help();
+            return self.end();
+        }
 
         console.log("");
 
@@ -67,7 +64,7 @@ class Command {
         console.log("  [3] - NEM Mijin");
 
         console.log("");
-        self.terminal.ask("Please select a Network", /[1-3]/, function(inputNet) {
+        self.getInput().ask("Please select a Network", /[1-3]/, function(inputNet) {
 
             var mainn = sdk.model.network.data.mainnet.id;
             var testn = sdk.model.network.data.testnet.id;
@@ -83,7 +80,7 @@ class Command {
             nodes[mijin] = { "host": "b1.nem.foundation", "protocol": "http", "port": 7895 };
 
             console.log("");
-            self.terminal.ask("Enter NEM Block Height", /[0-9]+/, function(blockHeight) {
+            self.getInput().ask("Enter NEM Block Height", /[0-9]+/, function(blockHeight) {
 
                 var node = nodes[network];
                 var params = { "height": blockHeight };

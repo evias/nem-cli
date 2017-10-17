@@ -97,23 +97,17 @@ Object.getOwnPropertyNames(_commands)
   .forEach(function(command) {
 
     var cmd = getScript(command);
-    var sub = cli.command(cmd.signature)
-        .description(cmd.description);
+    var sub = cli.command(cmd.getSignature())
+        .description(cmd.getDescription());
 
-    if (cmd.options.length) {
-        cmd.options.forEach(function(option) {
+    if (cmd.getOptions().length) {
+        cmd.getOptions().forEach(function(option) {
             sub.option(option.signature, option.description, option.format ? option.format : undefined);
         });
     }
 
     sub.action(function(env, opts) {
-
-        if (opts.help) {
-            cmd.help();
-            process.exit();
-        }
-
-        return cmd.run(env, opts);
+        return cmd.run(cli);
     });
 });
 
