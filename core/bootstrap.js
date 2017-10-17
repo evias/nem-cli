@@ -27,7 +27,7 @@ var cli = require("commander"),
 var _package = JSON.parse(fs.readFileSync("package.json"));
 
 // read available sub commands (prepare)
-var _scripts = fs.readdirSync(__dirname + "/scripts");
+var _scripts = fs.readdirSync(__dirname + "/../scripts");
 var _commands = {};
 _scripts.forEach(function(filename) {
     if (!filename.match(/\.js$/))

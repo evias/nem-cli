@@ -39,10 +39,8 @@
   "scripts": {
     "test": "mocha --compilers js:babel-core/register -- recursive",
     "build": "babel core/ scripts/ --presets babel-preset-es2015 --out-dir build --source-maps",
-    "publish": "cp -R build/* dist/ && ln -s dist/bootstrap.js nem-cli.js && ln -s nem-cli.js nem-cli && chmod +x nem-cli*",
-    "version": "npm run build && npm run publish && git add -A dist/",
-    "postversion": "git push origin master && git push --tags",
-    "postinstall": "npm run build",
-    "start": "babel-node dist/bootstrap.js"
+    "publish": "ln -s build/bootstrap.js nem-cli.js && ln -s nem-cli.js nem-cli && chmod +x nem-cli*",
+    "postinstall": "npm run build && npm run publish",
+    "start": "babel-node build/bootstrap.js"
   }
 }
