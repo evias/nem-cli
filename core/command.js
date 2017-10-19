@@ -66,7 +66,7 @@ class BaseCommand {
         console.log("");
         console.log("  Description:");
         console.log("");
-        console.log("    " + this.description);
+        console.log(this.description);
         console.log("");
 
         console.log("");
@@ -82,7 +82,7 @@ class BaseCommand {
 
         for (let i = 0; i < this.options.length; i++) {
             let opt = this.options[i];
-            console.log("    " + opt.signature + "\t" + opt.description);
+            console.log("    " + opt.signature + "\t\t" + opt.description);
         }
         console.log("");
 

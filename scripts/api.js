@@ -18,6 +18,7 @@
 
 import BaseCommand from "../core/command";
 import Request from "request";
+import * as JSONBeautifier from "prettyjson";
 
 class Command extends BaseCommand {
 
@@ -32,7 +33,10 @@ class Command extends BaseCommand {
         super(npmPack);
 
         this.signature = "api";
-        this.description = "This tool lets you execute a NIS API request on a NEM node.";
+        this.description = ("    " + "This tool lets you execute a NIS API request on a NEM node.\n"
+                    + "    " + "By default this tool will use the TestNet network. Please use\n"
+                    + "    " + "the --network command line argument to change this.\n\n"
+                    + "    " + "Example: nem-cli api --url /chain/height --network mainnet");
 
         this.options = [{
             "signature": "-h, --help",
@@ -121,19 +125,47 @@ class Command extends BaseCommand {
         if ("GET" === method) {
             this.apiGet(apiUrl, body, headers, function(response)
                 {
-                    //XXX beautify response output
-                    console.log(response);
+                    self.outputResponse(response);
                     return self.end() 
                 });
         }
         else if ("POST" === method) {
             this.apiPost(apiUrl, body, headers, function(response)
                 {
-                    //XXX beautify response output
-                    console.log(response);
+                    self.outputResponse(response);
                     return self.end() 
                 });
         }
+    }
+
+    /**
+     * Display a *beautified JSON* of the response. 
+     *
+     * This method is called after the NIS API request is
+     * executed and `response` will contain only the `body`
+     * of the HTTP raw response.
+     *
+     * @param   {string}    response    JSON body of response
+     * @return  void
+     */
+    outputResponse(response) {
+        let parsed = JSON.parse(response);
+        let beautified = JSONBeautifier.render(parsed, {
+            keysColor: 'green',
+            dashColor: 'green',
+            stringColor: 'yellow'
+          });
+
+        console.log("");
+        console.log("  Response:  ");
+        console.log("  -----------");
+
+        if (this.argv.verbose) {
+            console.log("RAW: '" + response + "'");
+        }
+
+        console.log("");
+        console.log(beautified);
     }
 
     /**
@@ -149,8 +181,9 @@ class Command extends BaseCommand {
         if (this.argv.verbose)
             this.dumpRequest("GET", url, body, headers)
 
+        var fullUrl  = this.node.host + ":" + this.node.port + url;
         var wrapData = {
-            url: this.node.host + ":" + this.node.port + url,
+            url: fullUrl,
             headers: headers,
             method: 'GET'
         };
@@ -178,8 +211,9 @@ class Command extends BaseCommand {
         if (this.argv.verbose)
             this.dumpRequest("POST", url, body, headers)
 
+        var fullUrl  = this.node.host + ":" + this.node.port + url;
         var wrapData = {
-            url: this.node.host + ":" + this.node.port + url,
+            url: fullUrl,
             headers: headers,
             method: 'POST'
         };

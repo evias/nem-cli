@@ -55,7 +55,7 @@ Following examples apply for the `nem-cli` command line tools suite:
 
 ```bash
 $ ./nem-cli list
-$ ./nem-cli api
+$ ./nem-cli api --help
 
 # Simples use case (Current chain height)
 $ ./nem-cli api --url /chain/height
