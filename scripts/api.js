@@ -52,6 +52,14 @@ class Command extends BaseCommand {
         }];
     }
 
+    /**
+     * This method outputs the help message corresponding to
+     * the `./nem-cli api --help` command.
+     *
+     * It will display a list of examples use cases of this API wrapper.
+     * 
+     * @return void
+     */
     help() {
         console.log("  Examples:");
         console.log("");
@@ -62,6 +70,17 @@ class Command extends BaseCommand {
         console.log("    $ ./nem-cli api --url /block/at/public --post --json '{\"height\": 1149971}'");
     }
 
+    /**
+     * This method will run the NIS API Wrapper subcommand.
+     *
+     * The HTTP request will first be prepared and can be *displayed* with
+     * the `--verbose` command line argument.
+     *
+     * There is currently *no confirmation* for the execution of HTTP Requests.
+     *
+     * @param   {object}    env
+     * @return  void
+     */
     run(env) {
 
         let self = this;
@@ -110,20 +129,31 @@ class Command extends BaseCommand {
 
         if ("GET" === method) {
             this.apiGet(apiUrl, body, headers, function(response)
-                { 
+                {
+                    //XXX beautify response output
                     console.log(response);
                     return self.end() 
                 });
         }
         else if ("POST" === method) {
             this.apiPost(apiUrl, body, headers, function(response)
-                { 
+                {
+                    //XXX beautify response output
                     console.log(response);
                     return self.end() 
                 });
         }
     }
 
+    /**
+     * This method is a NIS API Wrapper helper method that will
+     * send a GET Request to the configured `this.node`.
+     * 
+     * @param   {string}    url         NIS API URI (/chain/height, /block/at/public, etc.)
+     * @param   {string}    body        HTTP Request Body (JSON)
+     * @param   {object}    headers     HTTP Headers
+     * @param   {Function}  callback    Success callback
+     */
     apiGet(url, body, headers, callback) {
         if (this.argv.verbose)
             this.dumpRequest("GET", url, body, headers)
@@ -143,6 +173,16 @@ class Command extends BaseCommand {
         });
     }
 
+    /**
+     * This method is a NIS API Wrapper helper method that will
+     * send a POST Request to the configured `this.node`.
+     *
+     * @param   {string}    url         NIS API URI (/chain/height, /block/at/public, etc.)
+     * @param   {string}    body        HTTP Request Body (JSON)
+     * @param   {object}    headers     HTTP Headers
+     * @param   {Function}  callback    Success callback
+     * @return  void
+     */
     apiPost(url, body, headers, callback) {
         if (this.argv.verbose)
             this.dumpRequest("POST", url, body, headers)
@@ -162,6 +202,20 @@ class Command extends BaseCommand {
         });
     }
 
+    /**
+     * This method will display a dump of the HTTP request that 
+     * *will* be sent.
+     *
+     * The `dumpRequest()` method should be called only when the 
+     * `--verbose` command line argument has been passed.
+     * 
+     * @param   {string}    method      The HTTP Method (GET|POST)
+     * @param   {string}    url         NIS API URI (/chain/height, /block/at/public, etc.)
+     * @param   {string}    body        HTTP Request Body (JSON)
+     * @param   {object}    headers     HTTP Headers
+     * @param   {Function}  callback    Success callback
+     * @return  void
+     */
     dumpRequest(method, url, body, headers, noBeautify) {
         if (noBeautify === undefined) noBeautify = false;
 
@@ -188,6 +242,11 @@ class Command extends BaseCommand {
         console.log("");
     }
 
+    /**
+     * This method will end the current command process.
+     *
+     * @return void
+     */
     end() {
         process.exit();
     }

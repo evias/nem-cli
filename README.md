@@ -49,6 +49,27 @@ $ ./babel-node nem-cli api [arguments]
 $ ./babel-node nem-cli --help
 ```
 
+## Examples
+
+Following examples apply for the `nem-cli` command line tools suite:
+
+```bash
+$ ./nem-cli list
+$ ./nem-cli api
+
+# Simples use case (Current chain height)
+$ ./nem-cli api --url /chain/height
+$ ./nem-cli api --url /chain/height --network mainnet
+
+# POST request example and GET with parameters
+$ ./nem-cli api --url /block/at/public --post --json '{"height":1149971}'
+$ ./nem-cli api --url /account/get?address=TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ
+
+# Compare Chain Heights by switching Nodes:
+$ ./nem-cli api --url /chain/height --node bigalice2.nem.ninja
+$ ./nem-cli api --url /chain/height --node alice6.nem.ninja
+$ ./nem-cli api --url /chain/height --node b1.nem.foundation --port 7895
+```
 
 NE{m}njoy! :)
 

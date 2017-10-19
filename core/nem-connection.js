@@ -19,6 +19,14 @@
 import ConsoleInput from "./console-input";
 import NEM from "nem-sdk";
 
+/**
+ * The `NEMNetworkConnection` class is responsible for the
+ * configuration of the NEM network connection.
+ * 
+ * Instances of this class will hold a `networkId`, a `host`
+ * and a `port` property in addition to a `SDK` property
+ * which can be used to interact with the NEM-SDK.
+ */
 class NEMNetworkConnection {
 
     /**
@@ -135,9 +143,43 @@ class NEMNetworkConnection {
         return this;
     }
 
-    getNetwork() { return this.networkId }
-    getHost(scheme) { if (scheme === false) return this.host.replace(/https?:\/\//, ''); else return this.host }
-    getPort() { return this.port }
+    /**
+     * Getter for the `networkId` property.
+     *
+     * The network ID is returned because that's the 
+     * important information to keep about "mainnet", etc.
+     *
+     * @return integer
+     */
+    getNetwork() { 
+        return this.networkId 
+    }
+
+    /**
+     * Getter for the `host` property.
+     *
+     * You can set the `scheme` parameter to `false`
+     * if you wish to exclude the protocol Scheme and
+     * return only the *hostname*.
+     *
+     * @param   boolean scheme  Whether to include the scheme or not (http://) (Default: Yes)
+     * @return  string
+     */
+    getHost(scheme) { 
+        if (scheme === false) 
+            return this.host.replace(/https?:\/\//, ''); 
+
+        return this.host 
+    }
+
+    /**
+     * Getter for the `port` property.
+     *
+     * @return  integer
+     */
+    getPort() { 
+        return this.port 
+    }
 }
 
 exports.NEMNetworkConnection = NEMNetworkConnection;
