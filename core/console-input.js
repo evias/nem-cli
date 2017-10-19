@@ -39,6 +39,8 @@ class ConsoleInput {
             }
         });
     }
+
+    //XXX menu()
 }
 
 exports.ConsoleInput = ConsoleInput;

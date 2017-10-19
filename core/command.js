@@ -39,26 +39,62 @@ class BaseCommand {
      * @param {object} _package 
      */
     constructor(_package) {
+        this.io = new ConsoleInput();
+        this.npmPackage = _package;
+
         this.signature = "";
         this.description = "";
 
         this.options = [];
-        this.io = new ConsoleInput();
-        this.npmPackage = _package;
+        this.examples = [];
     }
 
     /**
-     * This method should output the help message corresponding to
-     * the subcommand.
+     * This method outputs the help message corresponding to
+     * the `./nem-cli <command> --help` command.
      *
-     * Example:
+     * It will display a list of examples use cases of this API wrapper.
      * 
-     *     help() { console.log("Hello, world"); }
-     *
      * @return void
      */
     help() {
-        throw new Error("Please specify a help() method in your subclass of BaseCommand.");
+        console.log("------------------------------------------------------------------------");
+        console.log("--                               NEM CLI                              --");
+        console.log("------------------------------------------------------------------------");
+        console.log("")
+        console.log("  Usage: nem-cli " + this.signature + " [options]");
+        console.log("");
+        console.log("  Description:");
+        console.log("");
+        console.log("    " + this.description);
+        console.log("");
+
+        console.log("");
+        console.log("  Options: ");
+
+        console.log("");
+        console.log("    -n, --node [node]\t\tSet custom [node] for NIS API");
+        console.log("    -p, --port [port]\t\tSet custom [port] for NIS API");
+        console.log("    -N, --network [network]\t\tSet network (Mainnet|Testnet|Mijin)");
+        console.log("    -S, --force-ssl\t\tUse SSL (HTTPS)");
+        console.log("    -d, --verbose\t\tSet verbose command execution (more logs)");
+        console.log("");
+
+        for (let i = 0; i < this.options.length; i++) {
+            let opt = this.options[i];
+            console.log("    " + opt.signature + "\t" + opt.description);
+        }
+        console.log("");
+
+        if (this.examples.length) {
+            console.log("");
+            console.log("  Examples:");
+            console.log("");
+            for (let j = 0; j < this.examples.length; j++) {
+                let example = this.examples[j];
+                console.log("    $ " + example);
+            }
+        }
     }
 
     /**

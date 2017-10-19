@@ -1,6 +1,6 @@
 {
   "name": "nem-cli",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "author": "Grégory Saive <greg@evias.be>",
   "description": "NEM-cli is a collection of command line tools for the NEM Blockchain features using the Terminal",
   "keywords": [

@@ -32,7 +32,7 @@ class Command extends BaseCommand {
         super(npmPack);
 
         this.signature = "api";
-        this.description = "Execute a NIS API request on a NEM node.";
+        this.description = "This tool lets you execute a NIS API request on a NEM node.";
 
         this.options = [{
             "signature": "-h, --help",
@@ -50,24 +50,15 @@ class Command extends BaseCommand {
             "signature": "-p, --params <query>",
             "description": "Add parameters to the Body of your NIS API request (application/x-www-form-urlencoded)."
         }];
-    }
 
-    /**
-     * This method outputs the help message corresponding to
-     * the `./nem-cli api --help` command.
-     *
-     * It will display a list of examples use cases of this API wrapper.
-     * 
-     * @return void
-     */
-    help() {
-        console.log("  Examples:");
-        console.log("");
-        console.log("    $ ./nem-cli api --url /chain/height")
-        console.log("    $ ./nem-cli api --url /chain/height --network testnet")
-        console.log("    $ ./nem-cli api --url /chain/height --node bigalice2.nem.ninja")
-        console.log("    $ ./nem-cli api --url /account/get?address=TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ");
-        console.log("    $ ./nem-cli api --url /block/at/public --post --json '{\"height\": 1149971}'");
+        this.examples = [
+            "nem-cli api --url /chain/height",
+            "nem-cli api --url /chain/height --network testnet",
+            "nem-cli api --url /chain/height --node bigalice2.nem.ninja",
+            "nem-cli api --url /account/get?address=TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ",
+            "nem-cli api --url /block/at/public --post --json '{\"height\": 1149971}'",
+            "nem-cli api --url /heartbeat --node alice7.nem.ninja"
+        ];
     }
 
     /**
