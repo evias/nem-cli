@@ -1,5 +1,5 @@
 /**
- * Part of the evias/nem-utils package.
+ * Part of the evias/nem-cli package.
  *
  * NOTICE OF LICENSE
  *
@@ -8,11 +8,11 @@
  * This source file is subject to the MIT License that is
  * bundled with this package in the LICENSE file.
  *
- * @package    evias/nem-utils
+ * @package    evias/nem-cli
  * @author     Grégory Saive <greg@evias.be> (https://github.com/evias)
  * @license    MIT License
  * @copyright  (c) 2017, Grégory Saive <greg@evias.be>
- * @link       https://github.com/evias/nem-utils
+ * @link       https://github.com/evias/nem-cli
  */
 
 (function() {

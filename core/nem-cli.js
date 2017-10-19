@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Part of the evias/nem-utils package.
+ * Part of the evias/nem-cli package.
  *
  * NOTICE OF LICENSE
  *
@@ -10,15 +10,14 @@
  * This source file is subject to the MIT License that is
  * bundled with this package in the LICENSE file.
  *
- * @package    evias/nem-utils
+ * @package    evias/nem-cli
  * @author     Grégory Saive <greg@evias.be> (https://github.com/evias)
  * @license    MIT License
  * @copyright  (c) 2017, Grégory Saive <greg@evias.be>
- * @link       https://github.com/evias/nem-utils
+ * @link       https://github.com/evias/nem-cli
  */
 
 import ConsoleInput from "./console-input";
-//import NEMConnection from "./connection";
 
 var cli = require("commander"),
     fs = require("fs");
@@ -49,16 +48,13 @@ var getScript = function(input) {
         return false;
 
     var cls = require(__dirname + "/../scripts/" + input + ".js").Command;
-    var ioc = new cls();
+    var ioc = new cls(_package);
     return ioc;
 };
 
 // configure command line interpreter
 cli.version(_package.version)
-    .usage("[options] <command> [arguments]")
-    .option("-n, --node [node]", "Set custom [node] for NIS API", /(https?:\/\/)?([a-z0-9\-_]):?([0-9]+)?/i)
-    .option("-p, --port [port]", "Set custom [port] for NIS API", /^[0-9]+/)
-    .option("-N, --network [network]", "Set network (Mainnet|Testnet|Mijin)", /^(mainnet|testnet|mijin)/i);
+    .usage("[options] <command> [arguments]");
 
 // define basic `./nem-cli list` command
 cli.command("list")
@@ -72,6 +68,7 @@ cli.command("list")
 
     console.log("");
     console.log("");
+    console.log("  Version: v" + env.version);
     console.log("  Credits To:");
     console.log("");
     console.log("    Author: " + _package.author);
@@ -96,9 +93,16 @@ cli.command("serve")
 Object.getOwnPropertyNames(_commands)
   .forEach(function(command) {
 
-    var cmd = getScript(command);
+    var cmd = getScript(command, cli);
     var sub = cli.command(cmd.getSignature())
         .description(cmd.getDescription());
+
+    // register default subcommand options
+
+    sub.option("-n, --node [node]", "Set custom [node] for NIS API", /(https?:\/\/)?([a-z0-9\-_\.]+):?([0-9]+)?/i)
+       .option("-p, --port [port]", "Set custom [port] for NIS API", /^[0-9]+/)
+       .option("-N, --network [network]", "Set network (Mainnet|Testnet|Mijin)", /^(mainnet|testnet|mijin)/i)
+       .option("-S, --ssl", "Use SSL (HTTPS)");
 
     if (cmd.getOptions().length) {
         cmd.getOptions().forEach(function(option) {
@@ -106,19 +110,10 @@ Object.getOwnPropertyNames(_commands)
         });
     }
 
-    sub.action(function(env, opts) {
-        return cmd.run(cli);
+    sub.action(function(env) {
+        cmd.init(env);
+        return cmd.run(env);
     });
 });
 
 cli.parse(process.argv);
-
-//XXXX
-// specifying the --node option will overwrite --network (we can tell the network from the API)
-if (cli.node) {
-    var port = cli.port ? parseInt(cli.port) : 7890;
-    var node = cli.node;
-    var scheme = node.match(/^http/) ? node.replace(/:\/\/.*/, '') : "http";
-} else if (cli.network) {
-
-}
