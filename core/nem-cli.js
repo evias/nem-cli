@@ -68,7 +68,7 @@ cli.command("list")
 
     console.log("");
     console.log("");
-    console.log("  Version: v" + env.version);
+    console.log("  Version: v" + _package.version);
     console.log("  Credits To:");
     console.log("");
     console.log("    Author: " + _package.author);
@@ -102,7 +102,8 @@ Object.getOwnPropertyNames(_commands)
     sub.option("-n, --node [node]", "Set custom [node] for NIS API", /(https?:\/\/)?([a-z0-9\-_\.]+):?([0-9]+)?/i)
        .option("-p, --port [port]", "Set custom [port] for NIS API", /^[0-9]+/)
        .option("-N, --network [network]", "Set network (Mainnet|Testnet|Mijin)", /^(mainnet|testnet|mijin)/i)
-       .option("-S, --ssl", "Use SSL (HTTPS)");
+       .option("-S, --force-ssl", "Use SSL (HTTPS)")
+       .option("-d, --verbose", "Set verbose command execution (more logs)");
 
     if (cmd.getOptions().length) {
         cmd.getOptions().forEach(function(option) {

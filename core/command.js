@@ -56,11 +56,12 @@ class BaseCommand {
         let nsch = node.match(/^http/) ? node.replace(/:\/\/.*/, '') : null;
         node     = node.replace(/https?:\/\//, '');
 
-        let scheme = this.argv.ssl ? "https" : (nsch ? nsch : "http");
+        let scheme = this.argv.forceSsl ? "https" : (nsch ? nsch : "http");
 
         // set connection object
         this.conn = new NEMNetworkConnection(network, scheme + "://" + node, port);
-        this.SDK = this.conn.SDK;
+        this.SDK  = this.conn.SDK;
+        this.node = this.SDK.model.objects.create("endpoint")(this.conn.getHost(), this.conn.getPort());
     }
 
     getOptions() {
