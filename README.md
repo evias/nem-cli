@@ -15,9 +15,12 @@ Feel free to contribute wherever you think you can help! NEMazing ideas much app
 Run the following from the terminal:
 
 ```bash
-git clone git@github.com:evias/nem-cli.git nem-cli/
-cd nem-cli
-npm install
+$ git clone git@github.com:evias/nem-cli.git nem-cli/
+$ cd nem-cli
+$ npm install
+
+# and to make it more comfortable
+$ echo "alias nem-cli='./nem-cli' >> ~/.bashrc" && source ~/.bashrc
 ```
 
 You are now all set and you can use the nem-cli Package as described in the Usage section.

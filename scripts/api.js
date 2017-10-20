@@ -180,15 +180,14 @@ class Command extends BaseCommand {
             stringColor: 'yellow'
           });
 
-        console.log("");
-        console.log("  Response:  ");
-        console.log("  -----------");
-
         if (this.argv.verbose) {
-            console.log("RAW: '" + response + "'");
+            console.log("");
+            console.log("  Response:  ");
+            console.log("  -----------");
+            console.log("RAW: '" + response.replace(/\r?\n$/, '') + "'");
+            console.log("");
         }
 
-        console.log("");
         console.log(beautified);
     }
 
@@ -274,8 +273,11 @@ class Command extends BaseCommand {
 
         console.log("");
 
-        if (!noBeautify)
-            console.log("---------------------------------------------------");
+        if (!noBeautify) {
+            console.log("");
+            console.log("  Request:  ");
+            console.log("  -----------");
+        }
 
         console.log(wrapper);
 
@@ -284,11 +286,6 @@ class Command extends BaseCommand {
 
         console.log(""); // HEADER-BODY separator
         console.log(body);
-
-        if (!noBeautify)
-            console.log("---------------------------------------------------");
-
-        console.log("");
     }
 
     /**
