@@ -20,7 +20,8 @@
 import ConsoleInput from "./console-input";
 
 var cli = require("commander"),
-    fs = require("fs");
+    fs = require("fs"),
+    chalk = require("chalk");
 
 // get package information
 var _package = JSON.parse(fs.readFileSync(__dirname + "/../package.json"));
@@ -52,6 +53,12 @@ var getScript = function(input) {
     return ioc;
 };
 
+const warning = chalk.red;
+const keyword = chalk.yellow;
+const label = chalk.green;
+const normal = chalk.reset;
+const log = console.log;
+
 // configure command line interpreter
 cli.version(_package.version)
     .usage("[options] <command> [arguments]");
@@ -60,31 +67,46 @@ cli.version(_package.version)
 cli.command("list")
 .description("List all available commands")
 .action(function(env, opts) {
-    console.log("------------------------------------------------------------------------");
-    console.log("--                               NEM CLI                              --");
-    console.log("------------------------------------------------------------------------");
 
-    cli.outputHelp();
+    log("");
 
-    console.log("");
-    console.log("");
-    console.log("  Version: v" + _package.version);
-    console.log("  Credits To:");
-    console.log("");
-    console.log("    Author: " + _package.author);
+    log("  " + label("Usage: ") + keyword("nem-cli <command> [options]"));
+    log("");
+    log("  " + label("Version: ") + keyword("v" + _package.version));
+    log("");
+    log("  " + label("Commands: "));
+    log("");
+    log("    " + keyword("list") + normal("\t\tList all available commands (Print this help message)"));
+    log("    " + keyword("api <arguments>") + normal("\t\tSend HTTP API requests to NIS nodes"));
+    log("    " + keyword("wallet <arguments>") + normal("\t\tHeadless NEM wallet implementation (not yet implemented)"));
+    log("    " + keyword("serve <arguments>") + normal("\t\tMake the NEM CLI command line tools suite available through a HTTP API. (not yet implemented)"));
+    log("");
+    log("  " + label("Options: "));
+    log("");
+    log("    " + keyword("-n, --node [node]") + normal("\t\tSet custom [node] for NIS API"));
+    log("    " + keyword("-p, --port [port]") + normal("\t\tSet custom [port] for NIS API"));
+    log("    " + keyword("-N, --network [network]") + normal("\t\tSet network (Mainnet|Testnet|Mijin)"));
+    log("    " + keyword("-S, --force-ssl") + normal("\t\tUse SSL (HTTPS)"));
+    log("    " + keyword("-d, --verbose") + normal("\t\tSet verbose command execution (more logs)"));
+    log("");
+
+    log("")
+    log("  " + label("Credits To:"));
+    log("");
+    log("    " + label("Author: ") + normal(_package.author));
 
     if (_package.contributors && _package.contributors.length) {
         _package.contributors.forEach(function(contributor) {
             var contrib = contributor.name + (contributor.email ? "<" + contributor.email + ">" : "");
-            console.log("Contributor: " + contrib);
+            log("    " + label("Contributor: ") + normal(contrib));
         });
     }
-    console.log("");
+    log("");
 });
 
 // Serve the NEM cli suite through a HTTP server
 cli.command("serve")
-.description("Make the NEM CLI command line tools suite available through its' HTTP API.")
+.description("Make the NEM CLI command line tools suite available through a HTTP API.")
 .action(function(env, opts) {
     //XXX
 });

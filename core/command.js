@@ -18,6 +18,7 @@
 
 import ConsoleInput from "./console-input";
 import NEMNetworkConnection from "./nem-connection";
+var chalk = require("chalk");
 
 /**
  * The BaseCommand class will be extended by all scripts/*.js 
@@ -58,41 +59,45 @@ class BaseCommand {
      * @return void
      */
     help() {
-        console.log("------------------------------------------------------------------------");
-        console.log("--                               NEM CLI                              --");
-        console.log("------------------------------------------------------------------------");
-        console.log("")
-        console.log("  Usage: nem-cli " + this.signature + " [options]");
-        console.log("");
-        console.log("  Description:");
-        console.log("");
-        console.log(this.description);
-        console.log("");
 
-        console.log("");
-        console.log("  Options: ");
+        const warning = chalk.red;
+        const keyword = chalk.yellow;
+        const label = chalk.green;
+        const normal = chalk.reset;
+        const log = console.log;
 
-        console.log("");
-        console.log("    -n, --node [node]\t\tSet custom [node] for NIS API");
-        console.log("    -p, --port [port]\t\tSet custom [port] for NIS API");
-        console.log("    -N, --network [network]\t\tSet network (Mainnet|Testnet|Mijin)");
-        console.log("    -S, --force-ssl\t\tUse SSL (HTTPS)");
-        console.log("    -d, --verbose\t\tSet verbose command execution (more logs)");
-        console.log("");
+        log("")
+        log("  " + label("Usage: ") + keyword("nem-cli " + this.signature + " [options]"));
+        log("");
+        log("  " + label("Description:"));
+        log("");
+        log(normal(this.description));
+        log("");
+
+        log("");
+        log("  " + label("Options: "));
+
+        log("");
+        log("    " + keyword("-n, --node [node]") + normal("\t\tSet custom [node] for NIS API"));
+        log("    " + keyword("-p, --port [port]") + normal("\t\tSet custom [port] for NIS API"));
+        log("    " + keyword("-N, --network [network]") + normal("\t\tSet network (Mainnet|Testnet|Mijin)"));
+        log("    " + keyword("-S, --force-ssl") + normal("\t\tUse SSL (HTTPS)"));
+        log("    " + keyword("-d, --verbose") + normal("\t\tSet verbose command execution (more logs)"));
+        log("");
 
         for (let i = 0; i < this.options.length; i++) {
             let opt = this.options[i];
-            console.log("    " + opt.signature + "\t\t" + opt.description);
+            log("    " + keyword(opt.signature) + normal("\t\t" + opt.description));
         }
-        console.log("");
+        log("");
 
         if (this.examples.length) {
-            console.log("");
-            console.log("  Examples:");
-            console.log("");
+            log("");
+            log("  " + label("Examples: "));
+            log("");
             for (let j = 0; j < this.examples.length; j++) {
                 let example = this.examples[j];
-                console.log("    $ " + example);
+                log("    $ " + example);
             }
         }
     }
@@ -164,6 +169,7 @@ class BaseCommand {
         this.conn = new NEMNetworkConnection(network, scheme + "://" + node, port);
         this.SDK  = this.conn.SDK;
         this.node = this.SDK.model.objects.create("endpoint")(this.conn.getHost(), this.conn.getPort());
+        this.network = network;
     }
 
     /**

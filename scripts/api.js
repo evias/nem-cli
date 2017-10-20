@@ -20,6 +20,8 @@ import BaseCommand from "../core/command";
 import Request from "request";
 import * as JSONBeautifier from "prettyjson";
 
+const { URLSearchParams } = require('url');
+
 class Command extends BaseCommand {
 
     /**
@@ -83,6 +85,7 @@ class Command extends BaseCommand {
         let isPost  = env.post === true;
         let hasJson = env.json !== undefined;
         let hasParams = env.params !== undefined;
+        let hasQuery = env.url && env.url.length ? env.url.match(/\?[a-z0-9=_\-\+%]+$/i) : false;
         let apiUrl  = env.url;
         let hasHelp = env.help === true;
         let isVerbose = env.verbose === true;
@@ -90,6 +93,27 @@ class Command extends BaseCommand {
         if (!apiUrl) {
             self.help();
             return self.end();
+        }
+
+        // if we have a Query, check whether an address
+        // parameter was passed. This might indicate that we need to
+        // use a different network than the default one (TestNet).
+
+        if (hasQuery) {
+            // most common use case: endpoint?address=..
+            let query = env.url.replace(/(.*)(\?[a-z0-9=_\-\+%]+)$/i, "$2");
+            let urlParams = new URLSearchParams(query);
+
+            if (urlParams.has("address")) {
+                // address parameter found, we will determine the network by 
+                // the address parameter whenever an address is identified.
+
+                let addr = urlParams.get("address");
+                let network = this.conn.getNetworkForAddress(addr);
+                if (network != this.network)
+                    // re-init with new network identified by address.
+                    this.init({"network": network});
+            }
         }
 
         // build the HTTP request dump

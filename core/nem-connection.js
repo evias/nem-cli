@@ -180,6 +180,32 @@ class NEMNetworkConnection {
     getPort() { 
         return this.port 
     }
+
+    /**
+     * Return the network name for a given `address`.
+     *
+     * This method will return one of *mainnet*, *testnet*
+     * and *mijin*.
+     *
+     * The first character of the address is determining on
+     * the NEM network to define the network being used.
+     *
+     * @param {string} address 
+     */
+    getNetworkForAddress(address)
+    {
+        let char = address.substr(0, 1);
+        let nets = {
+            "N": "mainnet",
+            "T": "testnet"
+        };
+
+        if (nets.hasOwnProperty(char))
+            return nets[char];
+
+        // for non-recognized starting letter, use Mijin network
+        return "mijin";
+    }
 }
 
 exports.NEMNetworkConnection = NEMNetworkConnection;
