@@ -18,6 +18,8 @@
 
 import ConsoleInput from "./console-input";
 import NEMNetworkConnection from "./nem-connection";
+
+const { URLSearchParams } = require('url');
 var chalk = require("chalk");
 
 /**
@@ -109,9 +111,11 @@ class BaseCommand {
      * 
      *     run(env) { console.log("Command running!"); }
      *
-     * @return void
+     * @param   {string}    subcommand
+     * @param   {object}    opts
+     * @return  {void}
      */
-    run(env) {
+    run(subcommand, opts) {
         throw new Error("Please specify a run(env) method in your subclass of BaseCommand.");
     }
 
@@ -170,6 +174,7 @@ class BaseCommand {
         this.SDK  = this.conn.SDK;
         this.node = this.SDK.model.objects.create("endpoint")(this.conn.getHost(), this.conn.getPort());
         this.network = network;
+        this.networkId = this.SDK.model.network.data[network];
     }
 
     /**
@@ -223,6 +228,44 @@ class BaseCommand {
      */
     getInput() {
         return this.io;
+    }
+
+    /**
+     * The switchNetworkByQS method will identify potential a `address`
+     * parameter in the query string of the URL provided.
+     *
+     * @param {string} url 
+     */
+    switchNetworkByQS(url) {
+
+        let hasQuery = url && url.length ? url.match(/\?[a-z0-9=_\-\+%]+$/i) : false;
+        if (! hasQuery)
+            return "testnet";
+
+        // most common use case: endpoint?address=..
+        let query = url.replace(/(.*)(\?[a-z0-9=_\-\+%]+)$/i, "$2");
+        let urlParams = new URLSearchParams(query);
+
+        if (urlParams.has("address")) {
+            // address parameter found, we will determine the network by 
+            // the address parameter whenever an address is identified.
+
+            let addr = urlParams.get("address");
+            return this.setNetworkByAddress(addr);
+        }
+    }
+
+    /**
+     * Switch the currently set NEM NETWORK to the one retrieved
+     * from the given `address`.
+     *  
+     * @param {String} address  NEM Wallet Address
+     */
+    switchNetworkByAddress(address) {
+        let network = this.conn.getNetworkForAddress(addr);
+        if (network != this.network)
+            // re-init with new network identified by address.
+            this.init({"network": network});
     }
 }
 

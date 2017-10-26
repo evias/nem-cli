@@ -20,8 +20,6 @@ import BaseCommand from "../core/command";
 import Request from "request";
 import * as JSONBeautifier from "prettyjson";
 
-const { URLSearchParams } = require('url');
-
 class Command extends BaseCommand {
 
     /**
@@ -37,7 +35,8 @@ class Command extends BaseCommand {
         this.signature = "api";
         this.description = ("    " + "This tool lets you execute a NIS API request on a NEM node.\n"
                     + "    " + "By default this tool will use the TestNet network. Please use\n"
-                    + "    " + "the --network command line argument to change this.\n\n"
+                    + "    " + "the --network command line argument to change this or include\n"
+                    + "    " + "an address in the URL to force network recognition by address.\n\n"
                     + "    " + "Example: nem-cli api --url /chain/height --network mainnet");
 
         this.options = [{
@@ -75,8 +74,9 @@ class Command extends BaseCommand {
      *
      * There is currently *no confirmation* for the execution of HTTP Requests.
      *
+     * @param   {string}    subcommand
      * @param   {object}    env
-     * @return  void
+     * @return  {void}
      */
     run(env) {
 
@@ -95,25 +95,12 @@ class Command extends BaseCommand {
             return self.end();
         }
 
-        // if we have a Query, check whether an address
-        // parameter was passed. This might indicate that we need to
-        // use a different network than the default one (TestNet).
-
         if (hasQuery) {
-            // most common use case: endpoint?address=..
-            let query = env.url.replace(/(.*)(\?[a-z0-9=_\-\+%]+)$/i, "$2");
-            let urlParams = new URLSearchParams(query);
+            // if we have a Query String, check whether an address
+            // parameter was passed. This might indicate that we need to
+            // use a different network than the default one (TestNet).
 
-            if (urlParams.has("address")) {
-                // address parameter found, we will determine the network by 
-                // the address parameter whenever an address is identified.
-
-                let addr = urlParams.get("address");
-                let network = this.conn.getNetworkForAddress(addr);
-                if (network != this.network)
-                    // re-init with new network identified by address.
-                    this.init({"network": network});
-            }
+            this.switchNetworkByQS(apiUrl);
         }
 
         // build the HTTP request dump
@@ -178,7 +165,7 @@ class Command extends BaseCommand {
             keysColor: 'green',
             dashColor: 'green',
             stringColor: 'yellow'
-          });
+        });
 
         if (this.argv.verbose) {
             console.log("");

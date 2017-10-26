@@ -133,9 +133,10 @@ Object.getOwnPropertyNames(_commands)
         });
     }
 
-    sub.action(function(env) {
-        cmd.init(env);
-        return cmd.run(env);
+    sub.action(function(opts) 
+    {
+        cmd.init(opts);
+        return cmd.run(opts);
     });
 });
 

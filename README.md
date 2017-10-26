@@ -20,7 +20,8 @@ $ cd nem-cli
 $ npm install
 
 # and to make it more comfortable
-$ echo "alias nem-cli='./nem-cli' >> ~/.bashrc" && source ~/.bashrc
+$ echo "alias nem-cli='./nem-cli'" >> ~/.bashrc 
+$ source ~/.bashrc
 ```
 
 You are now all set and you can use the nem-cli Package as described in the Usage section.

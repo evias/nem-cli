@@ -27,7 +27,8 @@
     "nem-sdk": "git://github.com/evias/NEM-sdk.git",
     "request": "2.81.0",
     "prettyjson": "1.2.1",
-    "chalk": "^1.1.3"
+    "chalk": "^1.1.3",
+    "easy-table": "1.1.0"
   },
   "devDependencies": {
     "babel-register": "^6.26.0",
