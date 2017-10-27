@@ -18,6 +18,7 @@
 
 import BaseCommand from "../core/command";
 import Request from "request";
+
 import * as JSONBeautifier from "prettyjson";
 
 class Command extends BaseCommand {

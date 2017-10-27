@@ -19,8 +19,9 @@
 import ConsoleInput from "./console-input";
 import NEMNetworkConnection from "./nem-connection";
 
-const { URLSearchParams } = require('url');
-var chalk = require("chalk");
+import * as URLSearchParams from "url";
+import * as chalk from "chalk";
+var Menu = require("simple-terminal-menu");
 
 /**
  * The BaseCommand class will be extended by all scripts/*.js 
@@ -262,10 +263,43 @@ class BaseCommand {
      * @param {String} address  NEM Wallet Address
      */
     switchNetworkByAddress(address) {
-        let network = this.conn.getNetworkForAddress(addr);
+        let network = this.conn.getNetworkForAddress(address);
         if (network != this.network)
             // re-init with new network identified by address.
             this.init({"network": network});
+    }
+
+    /**
+     * This method will display a terminal menu with
+     * the given `items`. Items will be indexed, the
+     * `items` parameter should be an array with choices
+     * texts.
+     * 
+     * @param {Array} items 
+     */
+    displayMenu(menuTitle, items, quitCallback) {
+        let self = this;
+
+        let menu = new Menu({
+            x: 3,
+            y: 2
+        });
+        menu.writeTitle("NEM CLI v" + this.npmPackage.version);
+        menu.writeSubtitle(menuTitle);
+        menu.writeSeparator();
+
+        for (let i = 0, m = Object.keys(items).length; i < m; i++) {
+            let choice = items[i].title;
+            let c = choice.substr(0, 1);
+
+            // add menu item with callback
+            menu.add(choice, items[i].callback);
+        }
+
+        menu.add("Quit", function() { 
+            menu.close(); 
+            return quitCallback ? quitCallback() : null; 
+        });
     }
 }
 

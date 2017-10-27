@@ -18,6 +18,7 @@
 
 import BaseCommand from "../core/command";
 import Request from "request";
+
 import * as JSONBeautifier from "prettyjson";
 import * as fs from "fs";
 import * as Table from "easy-table";
@@ -43,8 +44,8 @@ class Command extends BaseCommand {
             "signature": "-h, --help",
             "description": "Print help message about the `nem-cli.js wallet` command."
         }, {
-            "signature": "-a, --address <wltfile>",
-            "description": "Open a wallet by address."
+            "signature": "-a, --address <address>",
+            "description": "Set the current wallet by address."
         }, {
             "signature": "-w, --watch",
             "description": "Watch a wallet's transactions and balances."
@@ -96,15 +97,16 @@ class Command extends BaseCommand {
             return self.end();
         }
 
-        //XXX
-        let beautified = JSONBeautifier.render(wallet, {
-            keysColor: 'green',
-            dashColor: 'green',
-            stringColor: 'yellow'
-        });
-        console.log(beautified);
+        // Wallet now loaded, should provide with a Menu or Table content
 
-        this.end();
+        //XXX --raw should let the end-user display RAW JSON informations about wallets (no menu).
+
+        this.displayMenu("Wallet", {
+            "0": {title: "Account Overview", callback: this.accountOverview},
+            "1": {title: "Account Balances", callback: this.accountBalances},
+            "2": {title: "Recent Transactions", callback: this.recentTransactions},
+            "3": {title: "Search Transactions", callback: this.searchTransactions}
+        }, function() { self.end(); });
     }
 
     /**
@@ -159,6 +161,43 @@ class Command extends BaseCommand {
         }
 
         return wallet;
+    }
+
+    /**
+     * This method will display an account overview for the 
+     * currently loaded wallet.
+     * 
+     * The overview includes wallet balances (mosaics), harvesting
+     * status, latest transactions and other wallet informations
+     */
+    accountOverview() {
+        console.log("OVERVIEW");
+    }
+
+    /**
+     * This method will display an account balances summary.
+     * 
+     * This should include all mosaics available for the given
+     * account.
+     */
+    accountBalances() {
+        console.log("BALANCES");
+    }
+
+    /**
+     * This method will display a list of latest transactions
+     * for the currently loaded Wallet.
+     */
+    recentTransactions() {
+        console.log("RECENTS");
+    }
+
+    /**
+     * This method will let the end-user filter transactions by defined
+     * search terms and other filtering parameters.
+     */
+    searchTransactions() {
+        console.log("SEARCH");
     }
 }
 

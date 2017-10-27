@@ -16,11 +16,12 @@
  * @copyright  (c) 2017, Grégory Saive <greg@evias.be>
  * @link       https://github.com/evias/nem-cli
  */
+"use strict";
 
 import ConsoleInput from "./console-input";
 
 var cli = require("commander"),
-    fs = require("fs"),
+    fs  = require("fs"),
     chalk = require("chalk");
 
 // get package information

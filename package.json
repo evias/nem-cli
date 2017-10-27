@@ -1,6 +1,6 @@
 {
   "name": "nem-cli",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "author": "Grégory Saive <greg@evias.be>",
   "description": "NEM-cli is a collection of command line tools for the NEM Blockchain features using the Terminal",
   "keywords": [
@@ -28,7 +28,8 @@
     "request": "2.81.0",
     "prettyjson": "1.2.1",
     "chalk": "^1.1.3",
-    "easy-table": "1.1.0"
+    "easy-table": "1.1.0",
+    "simple-terminal-menu": "1.1.3"
   },
   "devDependencies": {
     "babel-register": "^6.26.0",
@@ -44,5 +45,8 @@
     "build": "babel core/ scripts/ --presets babel-preset-es2015 --out-dir build",
     "postinstall": "npm run build",
     "start": "./babel-node nem-cli"
+  },
+  "bin": {
+    "nem-cli": "./babel-node nem-cli"
   }
 }
