@@ -125,17 +125,15 @@ class Command extends BaseCommand {
         if (Object.keys(this.wallet.accounts).length === 1) {
             // only one account available, show menu directly.
 
-            this.addressMenu(addr);
+            this.addressMenu(this.wallet.accounts["0"].address);
         }
         else {
             // show an account selector for multiple accounts wallet
 
             this.showAccountSelector(function(response)
             {
-                let idx = response.selectedIndex;
-                let addr = self.addresses[idx];
-
-                console.log("Now retrieving information for: " + addr);
+                //let idx = response.selectedIndex;
+                let addr = response.replace(/^([^:]+:\s?)/, '');
                 self.addressMenu(addr);
             });
         }
@@ -149,6 +147,7 @@ class Command extends BaseCommand {
      */
     addressMenu(address) {
         let self = this;
+
         var ov = function() { self.accountOverview(address); };
         var ba = function() { self.accountBalances(address); };
         var tx = function() { self.recentTransactions(address); };
@@ -262,7 +261,20 @@ class Command extends BaseCommand {
      * account.
      */
     accountBalances(address) {
-        console.log("BALANCES");
+        let wrap = new NIS(this.npmPackage);
+        wrap.init(this.argv);
+
+        wrap.apiGet("/account/mosaic/owned?address=" + address, undefined, {}, function(nisResp)
+        {
+            let parsed = JSON.parse(nisResp);
+            let beautified = JSONBeautifier.render(parsed, {
+                keysColor: 'green',
+                dashColor: 'green',
+                stringColor: 'yellow'
+            });
+
+            console.log(beautified);
+        });
     }
 
     /**
