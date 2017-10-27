@@ -17,6 +17,7 @@
 "use strict";
 
 import BaseCommand from "../core/command";
+import NIS from "./api";
 import Request from "request";
 
 import * as JSONBeautifier from "prettyjson";
@@ -50,8 +51,14 @@ class Command extends BaseCommand {
             "signature": "-w, --watch",
             "description": "Watch a wallet's transactions and balances."
         }, {
-            "signature": "-s, --summary",
-            "description": "Get the summary (Overview) of a given wallet."
+            "signature": "-o, --overview",
+            "description": "Get the overview of a given wallet."
+        }, {
+            "signature": "-b, --balances",
+            "description": "Get the account balances of a given wallet."
+        }, {
+            "signature": "-l, --latest",
+            "description": "Get the latest transactions of a given wallet."
         }, {
             "signature": "-e, --export [flags]",
             "description": "Create a .wlt file export of the said wallet (This will need a private key or password)."
@@ -61,11 +68,14 @@ class Command extends BaseCommand {
         }];
 
         this.examples = [
-            "nem-cli wallet --address TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ --summary",
-            "nem-cli wallet --file /home/alice/Downloads/alices_wallet.wlt --summary",
+            "nem-cli wallet --address TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ --overview",
+            "nem-cli wallet --file /home/alice/Downloads/alices_wallet.wlt --overview",
             "nem-cli wallet --address TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ --watch",
             "nem-cli wallet --address TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ --export",
         ];
+
+        this.wallet = undefined;
+        this.addresses = {};
     }
 
     /**
@@ -85,28 +95,86 @@ class Command extends BaseCommand {
 
         let address  = env.address;
         let hasFile = env.file !== undefined;
-        let isWatch = env.post === true;
-        let isSummary = env.post === true;
-        let isExport = env.export === true;
-        let hasHelp = env.help === true;
 
-        let wallet = this.loadWallet();
+        this.wallet = this.loadWallet();
 
-        if (!wallet) {
+        if (!this.wallet) {
             self.help();
             return self.end();
         }
 
         // Wallet now loaded, should provide with a Menu or Table content
 
-        //XXX --raw should let the end-user display RAW JSON informations about wallets (no menu).
+        if (env.overview)
+            // --overview
+            return this.accountOverview(this.wallet.accounts["0"].address);
+        else if (env.balances)
+            // --balances
+            return this.accountBalances(this.wallet.accounts["0"].address);
+        else if (env.latest)
+            // --latest
+            return this.latestTransactions(this.wallet.accounts["0"].address);
 
-        this.displayMenu("Wallet", {
-            "0": {title: "Account Overview", callback: this.accountOverview},
-            "1": {title: "Account Balances", callback: this.accountBalances},
-            "2": {title: "Recent Transactions", callback: this.recentTransactions},
-            "3": {title: "Search Transactions", callback: this.searchTransactions}
-        }, function() { self.end(); });
+        // the end-user has not specified `--overview`, `--balances` or 
+        // `--latest` command line arguments.
+
+        // we will now display a menu so that the user can pick which 
+        // wallet address should be selected and which sub command must
+        // be executed.
+
+        if (Object.keys(this.wallet.accounts).length === 1) {
+            // only one account available, show menu directly.
+
+            this.addressMenu(addr);
+        }
+        else {
+            // show an account selector for multiple accounts wallet
+
+            this.showAccountSelector(function(response)
+            {
+                let idx = response.selectedIndex;
+                let addr = self.addresses[idx];
+
+                console.log("Now retrieving information for: " + addr);
+                self.addressMenu(addr);
+            });
+        }
+    }
+
+    /**
+     * This method will display the Wallet command's Main Menu.
+     * 
+     * This lets the user choose between different Actions related
+     * to the currently loaded Wallet.
+     */
+    addressMenu(address) {
+        let self = this;
+        var ov = function() { self.accountOverview(address); };
+        var ba = function() { self.accountBalances(address); };
+        var tx = function() { self.recentTransactions(address); };
+
+        this.displayMenu("Wallet Utilities", {
+            "0": {title: "Account Overview", callback: ov},
+            "1": {title: "Account Balances", callback: ba},
+            "2": {title: "Recent Transactions", callback: tx}
+        }, function() { self.end(); }, true);
+    }
+
+    /**
+     * This method will show a list of address from which the end-user 
+     * has to select the wanted wallet.
+     */
+    showAccountSelector(selectedCallback) {
+        let self = this;
+
+        for (let i = 0, m = Object.keys(this.wallet.accounts).length; i < m; i++) {
+            this.addresses[i] = {
+                title: this.wallet.accounts[i].label + ": " + this.wallet.accounts[i].address,
+                callback: selectedCallback
+            };
+        }
+
+        this.displayMenu("Select an Address", this.addresses, function() { self.mainMenu(); }, false);
     }
 
     /**
@@ -170,8 +238,21 @@ class Command extends BaseCommand {
      * The overview includes wallet balances (mosaics), harvesting
      * status, latest transactions and other wallet informations
      */
-    accountOverview() {
-        console.log("OVERVIEW");
+    accountOverview(address) {
+        let wrap = new NIS(this.npmPackage);
+        wrap.init(this.argv);
+
+        wrap.apiGet("/account/get?address=" + address, undefined, {}, function(nisResp)
+        {
+            let parsed = JSON.parse(nisResp);
+            let beautified = JSONBeautifier.render(parsed, {
+                keysColor: 'green',
+                dashColor: 'green',
+                stringColor: 'yellow'
+            });
+
+            console.log(beautified);
+        });
     }
 
     /**
@@ -180,7 +261,7 @@ class Command extends BaseCommand {
      * This should include all mosaics available for the given
      * account.
      */
-    accountBalances() {
+    accountBalances(address) {
         console.log("BALANCES");
     }
 
@@ -188,16 +269,8 @@ class Command extends BaseCommand {
      * This method will display a list of latest transactions
      * for the currently loaded Wallet.
      */
-    recentTransactions() {
-        console.log("RECENTS");
-    }
-
-    /**
-     * This method will let the end-user filter transactions by defined
-     * search terms and other filtering parameters.
-     */
-    searchTransactions() {
-        console.log("SEARCH");
+    latestTransactions(address) {
+        console.log("LATEST");
     }
 }
 

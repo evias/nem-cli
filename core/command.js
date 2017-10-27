@@ -51,6 +51,7 @@ class BaseCommand {
 
         this.options = [];
         this.examples = [];
+        this.argv = {};
     }
 
     /**
@@ -277,7 +278,7 @@ class BaseCommand {
      * 
      * @param {Array} items 
      */
-    displayMenu(menuTitle, items, quitCallback) {
+    displayMenu(menuTitle, items, quitCallback, addQuit, cbParams) {
         let self = this;
 
         let menu = new Menu({
@@ -296,10 +297,12 @@ class BaseCommand {
             menu.add(choice, items[i].callback);
         }
 
-        menu.add("Quit", function() { 
-            menu.close(); 
-            return quitCallback ? quitCallback() : null; 
-        });
+        if (addQuit === true) {
+            menu.add("Quit", function() { 
+                menu.close(); 
+                return quitCallback ? quitCallback() : null; 
+            });
+        }
     }
 }
 
