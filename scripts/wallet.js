@@ -59,6 +59,9 @@ class Command extends BaseCommand {
             "signature": "-l, --latest",
             "description": "Get the latest transactions of a given wallet."
         }, {
+            "signature": "-R, --raw",
+            "description": "Get RAW JSON data displayed instead of the default beautified Display."
+        }, {
             "signature": "-e, --export [flags]",
             "description": "Create a .wlt file export of the said wallet (This will need a private key or password)."
         }, {
@@ -350,19 +353,37 @@ class Command extends BaseCommand {
      * account.
      */
     accountBalances(address) {
+        let self = this;
         let wrap = new NIS(this.npmPackage);
         wrap.init(this.argv);
 
         wrap.apiGet("/account/mosaic/owned?address=" + address, undefined, {}, function(nisResp)
         {
             let parsed = JSON.parse(nisResp);
-            let beautified = JSONBeautifier.render(parsed, {
-                keysColor: 'green',
-                dashColor: 'green',
-                stringColor: 'yellow'
-            });
+            let headers = {
+                "balance": "Balance",
+                "slug": "Mosaic"
+            };
 
-            console.log(beautified);
+            let balances = [];
+            for (let i = 0; i < parsed.data.length; i++) {
+                let balance = parsed.data[i];
+                let slug = balance.mosaicId.namespaceId + ":" + balance.mosaicId.name;
+
+                wrap.apiMosaic(slug, function(mosaic) {
+                    let div = mosaic.properties[0].value;
+                    balances.push({
+                        balance: (balance.quantity * Math.pow(10, -div)).toFixed(div),
+                        slug: slug
+                    });
+
+                    if (balances.length === parsed.data.length) {
+                        // done retrieving mosaic informations for 
+                        // the account's balances
+                        self.displayTable("Wallet Balances", headers, balances);
+                    }
+                });
+            }
         });
     }
 

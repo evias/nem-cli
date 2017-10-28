@@ -355,9 +355,17 @@ class BaseCommand {
 
             let value = data[field];
             if (typeof value === 'boolean')
+                // YES/NO flags
                 value = value === true ? chalk.green("YES") : chalk.red("NO")
             else if (typeof value === 'number')
+                // numbers
                 value = chalk.yellow(value);
+            else if (typeof value === 'string'
+                    && (parseFloat(value) == value
+                        || parseInt(value) == value)) {
+                // numbers (but not typed right)
+                value = chalk.yellow(value);
+            }
 
             table.cell(header, value);
         }

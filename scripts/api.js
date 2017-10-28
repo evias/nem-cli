@@ -239,6 +239,36 @@ class Command extends BaseCommand {
     }
 
     /**
+     * This helper method will retrieve mosaic informations 
+     * about the given `slug`. A mosaic slug for XEM is "nem:xem"
+     * for example. For DIM COIN this would be "dim:coin", and so 
+     * on..
+     * 
+     * @param {String} slug 
+     * @param {Function} callback 
+     */
+    apiMosaic(slug, callback) {
+        let ns = slug.replace(/:(.*)+$/, '');
+        let mos = slug.replace(/^(.*)+:/, '');
+
+        this.apiGet("/namespace/mosaic/definition/page?namespace=" + ns, undefined, {}, function(response) {
+            let parsed = JSON.parse(response);
+
+            for (let i = 0; i < parsed.data.length; i++) {
+                let row = parsed.data[i];
+
+                if (row.mosaic.id.mosaicId === mos)
+                    return callback(row);
+            }
+
+            return callback({
+                mosaic: {id: {namespaceId: ns, name: mos}},
+                properties: [{name: "divisibility", value: 6}]
+            });
+        });
+    }
+
+    /**
      * This method will display a dump of the HTTP request that 
      * *will* be sent.
      *
