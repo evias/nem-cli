@@ -33,9 +33,10 @@ There is multiple ways to interact with this command line tools suite. You can u
 Here is a write-up of some examples for running the `nem-cli` command line tools suite:
 
 ```bash
-$ ./nem-cli list
-$ ./nem-cli api [arguments]
-$ ./nem-cli --help
+$ nem-cli list
+$ nem-cli api [arguments]
+$ nem-cli wallet [arguments]
+$ nem-cli --help
 ```
 
 or 
@@ -43,6 +44,7 @@ or
 ```bash
 $ npm start list
 $ npm start api  [arguments]
+$ npm start wallet  [arguments]
 ```
 
 .. or
@@ -50,6 +52,7 @@ $ npm start api  [arguments]
 ```bash
 $ ./babel-node nem-cli list
 $ ./babel-node nem-cli api [arguments]
+$ ./babel-node nem-cli wallet [arguments]
 $ ./babel-node nem-cli --help
 ```
 
@@ -58,21 +61,29 @@ $ ./babel-node nem-cli --help
 Following examples apply for the `nem-cli` command line tools suite:
 
 ```bash
-$ ./nem-cli list
-$ ./nem-cli api --help
+$ nem-cli list
+$ nem-cli api --help
 
 # Simples use case (Current chain height)
-$ ./nem-cli api --url /chain/height
-$ ./nem-cli api --url /chain/height --network mainnet
+$ nem-cli api --url /chain/height
+$ nem-cli api --url /chain/height --network mainnet
 
 # POST request example and GET with parameters
-$ ./nem-cli api --url /block/at/public --post --json '{"height":1149971}'
-$ ./nem-cli api --url /account/get?address=TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ
+$ nem-cli api --url /block/at/public --post --json '{"height":1149971}'
+$ nem-cli api --url /account/get?address=TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ
 
 # Compare Chain Heights by switching Nodes:
-$ ./nem-cli api --url /chain/height --node bigalice2.nem.ninja
-$ ./nem-cli api --url /chain/height --node alice6.nem.ninja
-$ ./nem-cli api --url /chain/height --node b1.nem.foundation --port 7895
+$ nem-cli api --url /chain/height --node bigalice2.nem.ninja
+$ nem-cli api --url /chain/height --node alice6.nem.ninja
+$ nem-cli api --url /chain/height --node b1.nem.foundation --port 7895
+
+# Use the headless wallet features
+$ nem-cli wallet --address TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ --overview
+$ nem-cli wallet --address TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ --watch
+
+# Use a simple terminal menu to interact with wallet
+$ nem-cli wallet --file /home/you/Downloads/your.wlt
+$ nem-cli wallet --address TDWZ55R5VIHSH5WWK6CEGAIP7D35XVFZ3RU2S5UQ
 ```
 
 NE{m}njoy! :)
