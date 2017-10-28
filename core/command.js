@@ -20,8 +20,9 @@ import ConsoleInput from "./console-input";
 import NEMNetworkConnection from "./nem-connection";
 
 import * as URLSearchParams from "url";
-import * as chalk from "chalk";
 var Menu = require("simple-terminal-menu");
+var Table = require("easy-table");
+var chalk = require("chalk");
 
 /**
  * The BaseCommand class will be extended by all scripts/*.js 
@@ -303,6 +304,40 @@ class BaseCommand {
                 return quitCallback ? quitCallback() : null; 
             });
         }
+    }
+
+    /**
+     * This method will display a table in the terminal.
+     * 
+     * The arguments `headers` and `rows` are mandatory. The
+     * `headers` array should have keys representing row field
+     * names and values representing header titles.
+     * 
+     * @param {*} headers 
+     * @param {*} rows 
+     */
+    displayTable(title, headers, data) {
+        let table = new Table();
+        let fields = Object.keys(headers);
+        for (let f in fields) {
+            let field  = fields[f];
+            let header = headers[field];
+
+            let value = data[field];
+            if (typeof value === 'boolean')
+                value = value === true ? chalk.green("YES") : chalk.red("NO")
+            else if (typeof value === 'number')
+                value = chalk.yellow(value);
+
+            table.cell(header, value);
+        }
+
+        table.newRow();
+ 
+        console.log("");
+        console.log(' ' + title + ' ');
+        console.log("");
+        console.log(table.toString());
     }
 }
 

@@ -22,7 +22,6 @@ import Request from "request";
 
 import * as JSONBeautifier from "prettyjson";
 import * as fs from "fs";
-import * as Table from "easy-table";
 
 class Command extends BaseCommand {
 
@@ -121,7 +120,6 @@ class Command extends BaseCommand {
         // we will now display a menu so that the user can pick which 
         // wallet address should be selected and which sub command must
         // be executed.
-
         if (Object.keys(this.wallet.accounts).length === 1) {
             // only one account available, show menu directly.
 
@@ -194,18 +192,18 @@ class Command extends BaseCommand {
     loadWallet() {
         let params = this.argv;
         let wallet = false;
-        if (this.argv.address && this.argv.address.length) {
-            if (! this.SDK.model.address.isValid(this.argv.address))
+        if (params.address && params.address.length) {
+            if (! this.SDK.model.address.isValid(params.address))
                 return false;
 
-            this.switchNetworkByAddress(this.argv.address);
+            this.switchNetworkByAddress(params.address);
 
             wallet = {
                 privateKey: undefined,
                 name: "Default",
                 accounts: {
                     "0": {
-                        address: this.argv.address,
+                        address: params.address,
                         network: this.networkId,
                         label: "Default"
                     }
@@ -213,14 +211,13 @@ class Command extends BaseCommand {
             };
         }
 
-        if (this.argv.file && this.argv.file.length) {
+        if (params.file && params.file.length) {
             // should read .wlt and provide multiple choice if available
-            let b64 = fs.readFileSync(this.argv.file);
+            let b64 = fs.readFileSync(params.file);
             let words = this.SDK.crypto.js.enc.Base64.parse(b64.toString());
             let plain = words.toString(this.SDK.crypto.js.enc.Utf8);
 
             wallet = JSON.parse(plain);
-
             if (wallet && wallet.accounts && Object.keys(wallet.accounts).length) {
                 let addr = wallet.accounts[0].address;
                 this.switchNetworkByAddress(addr);
@@ -238,19 +235,69 @@ class Command extends BaseCommand {
      * status, latest transactions and other wallet informations
      */
     accountOverview(address) {
+        let self = this;
         let wrap = new NIS(this.npmPackage);
         wrap.init(this.argv);
 
         wrap.apiGet("/account/get?address=" + address, undefined, {}, function(nisResp)
         {
             let parsed = JSON.parse(nisResp);
-            let beautified = JSONBeautifier.render(parsed, {
-                keysColor: 'green',
-                dashColor: 'green',
-                stringColor: 'yellow'
-            });
+            let acctMeta = parsed.meta;
+            let acctData = parsed.account;
 
-            console.log(beautified);
+            let multisigData = {
+                isMultisig: acctMeta.cosignatories.length > 0 && acctData.multisigInfo.cosignatoriesCount > 0,
+                isCosig: acctMeta.cosignatoryOf.length > 0,
+                cntTimesCosig: acctMeta.cosignatoryOf.length,
+                cntCosigs: acctMeta.cosignatories.length,
+                minCosigs: acctData.multisigInfo.minCosignatories ? acctData.multisigInfo.minCosignatories : 0,
+                maxCosigs: acctData.multisigInfo.cosignatoriesCount ? acctData.multisigInfo.cosignatoriesCount : 0,
+                cosignatories: {},
+                cosignatoryOf: {}
+            };
+
+            if (acctMeta.cosignatories.length) {
+                for (let i in acctMeta.cosignatories) {
+                    let cosig = acctMeta.cosignatories[i];
+                    multisigData["cosignatories"][cosig.address] = cosig;
+                }
+            }
+
+            if (acctMeta.cosignatoryOf.length) {
+                for (let i in acctMeta.cosignatoryOf) {
+                    let cosig = acctMeta.cosignatoryOf[i];
+                    multisigData["cosignatoryOf"][cosig.address] = cosig;
+                }
+            }
+
+            let hasEnoughXem = acctData.vestedBalance > 10000 * Math.pow(10, 6);
+            let harvestData = {
+                hasMinimum: hasEnoughXem,
+                canDelegateHarvest: hasEnoughXem && acctMeta.remoteStatus == "ACTIVE",
+                isHarvesting: hasEnoughXem && acctMeta.remoteStatus == "ACTIVE" && acctMeta.status == "LOCKED",
+                poiScore: parseFloat(parseFloat(acctData.importance).toFixed(6)),
+                countBlocks: acctData.harvestedBlocks,
+                totalXEM: acctData.balance * Math.pow(10, -6),
+                vestedXEM: acctData.vestedBalance * Math.pow(10, -6),
+                harvestedXEM: 0.000000
+            };
+
+            self.displayTable("Multi Signature Informations", {
+                "isMultisig": "MultiSig",
+                "minCosigs": "Min. Co-Sig",
+                "cntCosigs": "# of Co-Sig",
+                "cntTimesCosig": "Co-Sig of",
+            }, multisigData);
+
+            self.displayTable("Harvesting Informations", {
+                "canDelegateHarvest": "Allowed",
+                "isHarvesting": "Status",
+                "poiScore": "PoI Score",
+                "countBlocks": "# Blocks",
+                "vestedXEM": "Vested XEM",
+                "harvestedXEM": "Harvested XEM",
+                "totalXEM": "Total XEM",
+            }, harvestData);
         });
     }
 
