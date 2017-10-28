@@ -282,13 +282,6 @@ class Command extends BaseCommand {
                 harvestedXEM: 0.000000
             };
 
-            self.displayTable("Multi Signature Informations", {
-                "isMultisig": "MultiSig",
-                "minCosigs": "Min. Co-Sig",
-                "cntCosigs": "# of Co-Sig",
-                "cntTimesCosig": "Co-Sig of",
-            }, multisigData);
-
             self.displayTable("Harvesting Informations", {
                 "canDelegateHarvest": "Allowed",
                 "isHarvesting": "Status",
@@ -298,6 +291,55 @@ class Command extends BaseCommand {
                 "harvestedXEM": "Harvested XEM",
                 "totalXEM": "Total XEM",
             }, harvestData);
+
+            if (multisigData.isMultisig || multisigData.isCosig) {
+                self.displayTable("Multi Signature Informations", {
+                    "isMultisig": "MultiSig",
+                    "minCosigs": "Min. Co-Sig",
+                    "cntCosigs": "# of Co-Sig",
+                    "cntTimesCosig": "Co-Sig of",
+                }, multisigData);
+
+                if (multisigData.isMultisig) {
+                    let cosigs = [];
+                    let addresses = Object.keys(multisigData.cosignatories);
+                    for (let i = 0, m = addresses.length; i < m; i++) {
+                        let addr = addresses[i];
+                        let cosig = multisigData.cosignatories[addr];
+                        cosigs.push({
+                            number: i+1,
+                            address: cosig.address, 
+                            balance: cosig.balance * Math.pow(10, -6)
+                        });
+                    }
+
+                    self.displayTable("Cosignatories List", {
+                        "number": "#",
+                        "address": "Address",
+                        "balance": "Total XEM"
+                    }, cosigs);
+                }
+
+                if (multisigData.isCosig) {
+                    let msigs = [];
+                    let addresses = Object.keys(multisigData.cosignatoryOf);
+                    for (let i = 0, m = addresses.length; i < m; i++) {
+                        let addr = addresses[i];
+                        let msig = multisigData.cosignatoryOf[addr];
+                        msigs.push({
+                            number: i+1,
+                            address: msig.address, 
+                            balance: msig.balance * Math.pow(10, -6)
+                        });
+                    }
+
+                    self.displayTable("Multisignature Accounts", {
+                        "number": "#",
+                        "address": "Address",
+                        "balance": "Total XEM",
+                    }, msigs);
+                }
+            }
         });
     }
 

@@ -317,7 +317,37 @@ class BaseCommand {
      * @param {*} rows 
      */
     displayTable(title, headers, data) {
+        let self = this;
         let table = new Table();
+
+        if (typeof data === 'object' && data.length) {
+            // isArray
+            data.forEach(function(row) {
+                self.addRow(table, headers, row);
+            });
+        }
+        else {
+            self.addRow(table, headers, data);
+        }
+ 
+        console.log("");
+        console.log(' ' + title + ' ');
+        console.log("");
+        console.log(table.toString());
+    }
+
+    /**
+     * This method will check the type of data that is 
+     * currently being added and will format (color) the
+     * text accordingly.
+     * 
+     * @see chalk
+     * @see easy-table
+     * @param {Table} table 
+     * @param {Array} fields 
+     * @param {Object} data 
+     */
+    addRow(table, headers, data) {
         let fields = Object.keys(headers);
         for (let f in fields) {
             let field  = fields[f];
@@ -333,11 +363,7 @@ class BaseCommand {
         }
 
         table.newRow();
- 
-        console.log("");
-        console.log(' ' + title + ' ');
-        console.log("");
-        console.log(table.toString());
+        return table;
     }
 }
 
