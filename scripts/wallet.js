@@ -387,11 +387,17 @@ class Command extends BaseCommand {
     accountBalances(argv, address) {
         let self = this;
         let wrap = new NIS(this.npmPackage);
-        wrap.init(argv);
+        wrap.init(self.argv);
 
         wrap.apiGet("/account/mosaic/owned?address=" + address, undefined, {}, function(nisResp)
         {
             let parsed = JSON.parse(nisResp);
+
+            if (parsed.error) {
+                console.error("NIS API Request Error: " + parsed.error + " - " + parsed.message + " - Status: " + parsed.status);
+                return false;
+            }
+
             let headers = {
                 "balance": "Balance",
                 "slug": "Mosaic"
@@ -412,7 +418,15 @@ class Command extends BaseCommand {
                     if (balances.length === parsed.data.length) {
                         // done retrieving mosaic informations for 
                         // the account's balances
-                        self.displayTable("Wallet Balances", headers, balances);
+                        if (argv.raw) {
+                            let rawJSON = JSON.stringify({data: balances});
+                            let j = argv.beautify ? self.beautifyJSON(rawJSON) : rawJSON;
+                            console.log(j);
+                            return false;
+                        }
+                        else {
+                            self.displayTable("Wallet Balances", headers, balances);
+                        }
                     }
                 });
             }
