@@ -20,6 +20,8 @@ import ConsoleInput from "./console-input";
 import NEMNetworkConnection from "./nem-connection";
 
 import * as URLSearchParams from "url";
+import * as JSONBeautifier from "prettyjson";
+
 var Menu = require("simple-terminal-menu");
 var Table = require("easy-table");
 var chalk = require("chalk");
@@ -372,6 +374,24 @@ class BaseCommand {
 
         table.newRow();
         return table;
+    }
+
+    /**
+     * This helper method will return a beautified JSON
+     * to be outputted to the console.
+     * 
+     * @param   {string} json 
+     * @return  {string}
+     */
+    beautifyJSON(json) {
+        let parsed = JSON.parse(json);
+        let beautified = JSONBeautifier.render(parsed, {
+            keysColor: 'green',
+            dashColor: 'green',
+            stringColor: 'yellow'
+        });
+
+        return beautified;
     }
 }
 

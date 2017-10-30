@@ -23,6 +23,8 @@ import Request from "request";
 import * as JSONBeautifier from "prettyjson";
 import * as fs from "fs";
 
+var chalk = require("chalk");
+
 class Command extends BaseCommand {
 
     /**
@@ -62,6 +64,9 @@ class Command extends BaseCommand {
             "signature": "-R, --raw",
             "description": "Get RAW JSON data displayed instead of the default beautified Display."
         }, {
+            "signature": "-B, --beautify",
+            "description": "Only applies with --raw. This will print the output beautified instead of raw JSON."
+        }, {
             "signature": "-e, --export [flags]",
             "description": "Create a .wlt file export of the said wallet (This will need a private key or password)."
         }, {
@@ -93,12 +98,10 @@ class Command extends BaseCommand {
      */
     run(env) {
 
-        let self = this;
-
         let address  = env.address;
         let hasFile = env.file !== undefined;
 
-        this.wallet = this.loadWallet();
+        this.wallet = this.loadWallet(env);
 
         if (!this.wallet) {
             self.help();
@@ -109,13 +112,13 @@ class Command extends BaseCommand {
 
         if (env.overview)
             // --overview
-            return this.accountOverview(this.wallet.accounts["0"].address);
+            return this.accountOverview(env, this.wallet.accounts["0"].address);
         else if (env.balances)
             // --balances
-            return this.accountBalances(this.wallet.accounts["0"].address);
+            return this.accountBalances(env, this.wallet.accounts["0"].address);
         else if (env.latest)
             // --latest
-            return this.latestTransactions(this.wallet.accounts["0"].address);
+            return this.latestTransactions(env, this.wallet.accounts["0"].address);
 
         // the end-user has not specified `--overview`, `--balances` or 
         // `--latest` command line arguments.
@@ -126,16 +129,17 @@ class Command extends BaseCommand {
         if (Object.keys(this.wallet.accounts).length === 1) {
             // only one account available, show menu directly.
 
-            this.addressMenu(this.wallet.accounts["0"].address);
+            this.addressMenu(env, this.wallet.accounts["0"].address);
         }
         else {
             // show an account selector for multiple accounts wallet
 
+            let self = this;
             this.showAccountSelector(function(response)
             {
                 //let idx = response.selectedIndex;
                 let addr = response.replace(/^([^:]+:\s?)/, '');
-                self.addressMenu(addr);
+                self.addressMenu(env, addr);
             });
         }
     }
@@ -146,12 +150,12 @@ class Command extends BaseCommand {
      * This lets the user choose between different Actions related
      * to the currently loaded Wallet.
      */
-    addressMenu(address) {
+    addressMenu(env, address) {
         let self = this;
 
-        var ov = function() { self.accountOverview(address); };
-        var ba = function() { self.accountBalances(address); };
-        var tx = function() { self.recentTransactions(address); };
+        var ov = function() { self.accountOverview(env, address); };
+        var ba = function() { self.accountBalances(env, address); };
+        var tx = function() { self.recentTransactions(env, address); };
 
         this.displayMenu("Wallet Utilities", {
             "0": {title: "Account Overview", callback: ov},
@@ -174,7 +178,7 @@ class Command extends BaseCommand {
             };
         }
 
-        this.displayMenu("Select an Address", this.addresses, function() { self.mainMenu(); }, false);
+        this.displayMenu("Select an Address", this.addresses, function() { self.end(); }, false);
     }
 
     /**
@@ -192,8 +196,8 @@ class Command extends BaseCommand {
      * 
      * @return {Wallet|false}
      */
-    loadWallet() {
-        let params = this.argv;
+    loadWallet(argv) {
+        let params = argv;
         let wallet = false;
         if (params.address && params.address.length) {
             if (! this.SDK.model.address.isValid(params.address))
@@ -206,7 +210,7 @@ class Command extends BaseCommand {
                 name: "Default",
                 accounts: {
                     "0": {
-                        address: params.address,
+                        address: params.address.replace(/[\-\s]+/, ''),
                         network: this.networkId,
                         label: "Default"
                     }
@@ -222,7 +226,7 @@ class Command extends BaseCommand {
 
             wallet = JSON.parse(plain);
             if (wallet && wallet.accounts && Object.keys(wallet.accounts).length) {
-                let addr = wallet.accounts[0].address;
+                let addr = wallet.accounts[0].address.replace(/[\-\s]+/, '');
                 this.switchNetworkByAddress(addr);
             }
         }
@@ -237,14 +241,20 @@ class Command extends BaseCommand {
      * The overview includes wallet balances (mosaics), harvesting
      * status, latest transactions and other wallet informations
      */
-    accountOverview(address) {
+    accountOverview(argv, address) {
         let self = this;
         let wrap = new NIS(this.npmPackage);
-        wrap.init(this.argv);
+        wrap.init(self.argv);
 
         wrap.apiGet("/account/get?address=" + address, undefined, {}, function(nisResp)
         {
             let parsed = JSON.parse(nisResp);
+
+            if (parsed.error) {
+                console.error("NIS API Request Error: " + parsed.error + " - " + parsed.message + " - Status: " + parsed.status);
+                return false;
+            }
+
             let acctMeta = parsed.meta;
             let acctData = parsed.account;
 
@@ -285,17 +295,39 @@ class Command extends BaseCommand {
                 harvestedXEM: 0.000000
             };
 
-            self.displayTable("Harvesting Informations", {
-                "canDelegateHarvest": "Allowed",
-                "isHarvesting": "Status",
-                "poiScore": "PoI Score",
-                "countBlocks": "# Blocks",
-                "vestedXEM": "Vested XEM",
-                "harvestedXEM": "Harvested XEM",
-                "totalXEM": "Total XEM",
-            }, harvestData);
+            let rawData = {
+                data: {
+                    "general": harvestData,
+                    "multisig": multisigData
+                }
+            };
+
+            if (argv.raw) {
+                // --raw flag enabled
+                // --beautify would beautify output.
+                let rawJSON = JSON.stringify(rawData);
+                let j = argv.beautify ? self.beautifyJSON(rawJSON) : rawJSON;
+                console.log(j);
+                return false;
+            }
+            else {
+                // table display (no JSON)
+
+                self.displayTable("Harvesting Informations", {
+                    "canDelegateHarvest": "Allowed",
+                    "isHarvesting": "Status",
+                    "poiScore": "PoI Score",
+                    "countBlocks": "# Blocks",
+                    "vestedXEM": "Vested XEM",
+                    "harvestedXEM": "Harvested XEM",
+                    "totalXEM": "Total XEM",
+                }, harvestData);
+            }
 
             if (multisigData.isMultisig || multisigData.isCosig) {
+
+                // table display (no JSON)
+
                 self.displayTable("Multi Signature Informations", {
                     "isMultisig": "MultiSig",
                     "minCosigs": "Min. Co-Sig",
@@ -352,10 +384,10 @@ class Command extends BaseCommand {
      * This should include all mosaics available for the given
      * account.
      */
-    accountBalances(address) {
+    accountBalances(argv, address) {
         let self = this;
         let wrap = new NIS(this.npmPackage);
-        wrap.init(this.argv);
+        wrap.init(argv);
 
         wrap.apiGet("/account/mosaic/owned?address=" + address, undefined, {}, function(nisResp)
         {
@@ -391,7 +423,7 @@ class Command extends BaseCommand {
      * This method will display a list of latest transactions
      * for the currently loaded Wallet.
      */
-    latestTransactions(address) {
+    latestTransactions(argv, address) {
         console.log("LATEST");
     }
 }
