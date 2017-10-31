@@ -288,7 +288,7 @@ class Command extends BaseCommand {
                 hasMinimum: hasEnoughXem,
                 canDelegateHarvest: hasEnoughXem && acctMeta.remoteStatus == "ACTIVE",
                 isHarvesting: hasEnoughXem && acctMeta.remoteStatus == "ACTIVE" && acctMeta.status == "LOCKED",
-                poiScore: parseFloat(parseFloat(acctData.importance).toFixed(6)),
+                poiScore: parseFloat(parseFloat(acctData.importance).toFixed(10)),
                 countBlocks: acctData.harvestedBlocks,
                 totalXEM: acctData.balance * Math.pow(10, -6),
                 vestedXEM: acctData.vestedBalance * Math.pow(10, -6),

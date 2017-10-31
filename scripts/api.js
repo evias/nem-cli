@@ -33,13 +33,33 @@ class Command extends BaseCommand {
     constructor(npmPack) {
         super(npmPack);
 
+        /**
+         * The command signature (Example: "wallet", "api" or "export")
+         * 
+         * @var {string}
+         */
         this.signature = "api";
+
+        /**
+         * The command description
+         * 
+         * @var {string}
+         */
         this.description = ("    " + "This tool lets you execute a NIS API request on a NEM node.\n"
                     + "    " + "By default this tool will use the TestNet network. Please use\n"
                     + "    " + "the --network command line argument to change this or include\n"
                     + "    " + "an address in the URL to force network recognition by address.\n\n"
                     + "    " + "Example: nem-cli api --url /chain/height --network mainnet");
 
+        /**
+         * The available command line arguments for
+         * this command.
+         *
+         * Each option object must contain a `signature` and
+         * `description` key.
+         * 
+         * @var {array}
+         */
         this.options = [{
             "signature": "-h, --help",
             "description": "Print help message about the `nem-cli.js api` command."
@@ -57,6 +77,11 @@ class Command extends BaseCommand {
             "description": "Add parameters to the Body of your NIS API request (application/x-www-form-urlencoded)."
         }];
 
+        /**
+         * This is an array of examples for the said command.
+         * 
+         * @var {array}
+         */
         this.examples = [
             "nem-cli api --url /chain/height",
             "nem-cli api --url /chain/height --network testnet",
@@ -65,6 +90,15 @@ class Command extends BaseCommand {
             "nem-cli api --url /block/at/public --post --json '{\"height\": 1149971}'",
             "nem-cli api --url /heartbeat --node alice7.nem.ninja"
         ];
+
+        /**
+         * This variable contains Discovered Namespaces.
+         * This is to provide a caching mechanism for Mosaic
+         * and Namespaces.
+         * 
+         * @var {object}
+         */
+        this.__ns_Discovery = {};
     }
 
     /**
@@ -248,23 +282,32 @@ class Command extends BaseCommand {
      * @param {Function} callback 
      */
     apiMosaic(slug, callback) {
+        let self = this;
         let ns = slug.replace(/:(.*)+$/, '');
         let mos = slug.replace(/^(.*)+:/, '');
 
-        this.apiGet("/namespace/mosaic/definition/page?namespace=" + ns, undefined, {}, function(response) {
+        let ns_norm = ns.replace(/\./, '-');
+        if (self.__ns_Discovery.hasOwnProperty(ns_norm))
+            return self.__ns_Discovery[ns_norm];
+
+        self.apiGet("/namespace/mosaic/definition/page?namespace=" + ns, undefined, {}, function(response) {
             let parsed = JSON.parse(response);
 
             for (let i = 0; i < parsed.data.length; i++) {
                 let row = parsed.data[i];
 
-                if (row.mosaic.id.mosaicId === mos)
+                if (row.mosaic.id.mosaicId === mos) {
+                    self.__ns_Discovery[ns_norm] = row;
                     return callback(row);
+                }
             }
 
-            return callback({
+            // mosaic data not found
+            let data = {
                 mosaic: {id: {namespaceId: ns, name: mos}},
                 properties: [{name: "divisibility", value: 6}]
-            });
+            };
+            return callback(data);
         });
     }
 

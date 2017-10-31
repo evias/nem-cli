@@ -19,8 +19,8 @@
 import ConsoleInput from "./console-input";
 import NEMNetworkConnection from "./nem-connection";
 
-import * as URLSearchParams from "url";
 import * as JSONBeautifier from "prettyjson";
+const { URLSearchParams } = require('url');
 
 var Menu = require("simple-terminal-menu");
 var Table = require("easy-table");
@@ -46,14 +46,60 @@ class BaseCommand {
      * @param {object} _package 
      */
     constructor(_package) {
+
+        /**
+         * The terminal utility to ask for user input.
+         * 
+         * @var {ConsoleInput}
+         */
         this.io = new ConsoleInput();
+
+        /**
+         * The NPM package of the NEM-CLI. This is used
+         * for the --help command.
+         * 
+         * @var {object}
+         */
         this.npmPackage = _package;
 
+        /**
+         * The command signature (Example: "wallet", "api" or "export")
+         * 
+         * @var {string}
+         */
         this.signature = "";
+
+        /**
+         * The command description
+         * 
+         * @var {string}
+         */
         this.description = "";
 
+        /**
+         * The available command line arguments for
+         * this command.
+         *
+         * Each option object must contain a `signature` and
+         * `description` key.
+         * 
+         * @var {array}
+         */
         this.options = [];
+
+        /**
+         * This is an array of examples for the said command.
+         * 
+         * @var {array}
+         */
         this.examples = [];
+
+        /**
+         * This will contain the command line arguments
+         * passed to the command.
+         * 
+         * @var {object}
+         */
         this.argv = {};
     }
 
@@ -256,7 +302,7 @@ class BaseCommand {
             // the address parameter whenever an address is identified.
 
             let addr = urlParams.get("address");
-            return this.setNetworkByAddress(addr);
+            return this.switchNetworkByAddress(addr);
         }
     }
 
