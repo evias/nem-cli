@@ -225,7 +225,7 @@ class BaseCommand {
         this.SDK  = this.conn.SDK;
         this.node = this.SDK.model.objects.create("endpoint")(this.conn.getHost(), this.conn.getPort());
         this.network = network;
-        this.networkId = this.SDK.model.network.data[network];
+        this.networkId = this.SDK.model.network.data[network].id;
     }
 
     /**
